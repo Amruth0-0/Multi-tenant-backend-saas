@@ -1,21 +1,23 @@
 const express = require('express');
-const path = require('path');
+// const path = require('path');
 const dotenv  = require('dotenv')
 const dbConnect = require('./config/db')
 const indexRouter = require('./routes/main.route');
+const authRouter = require('./routes/auth.route')
 
 
 const app = express();
 dotenv.config();
 dbConnect()
 
-app.use(express.static(path.join(__dirname, 'public')));
-
+app.use(express.static('public'));
+app.use(express.json())
+app.use(express.urlencoded({extended: true}));
 app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'views'));
+// app.set('views', path.join(__dirname, 'views'));
 
-app.use('/', indexRouter);
-app.use('/register', indexRouter)
+app.use('/', indexRouter)
+app.use('/api/auth', authRouter)
 
 
 app.listen(3000, () => {
