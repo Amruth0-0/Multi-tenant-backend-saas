@@ -1,9 +1,9 @@
 const {body, validationResult} = require('express-validator')
 
-module.exports = registerValidator = [
+const registerValidator = [
     body('workspaceName').trim().notEmpty().isLength({ min: 3}),
     body('username').trim().notEmpty().isLength({min: 4, max: 12}),
-    body('Email').isEmail().normalizeEmail(),
+    body('email').isEmail().normalizeEmail(),
     body('password').isLength({min: 8}),
 (req,res,next)=>{
     const err = validationResult(req)
@@ -17,3 +17,4 @@ module.exports = registerValidator = [
 }
 ]
 
+module.exports = { registerValidator }
