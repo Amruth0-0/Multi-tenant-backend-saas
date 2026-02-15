@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Login | TenantFlow</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Flowbite CSS -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.css" rel="stylesheet" />
+
+</head>
+
+<body class="bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white min-h-screen flex flex-col">
+
+  <!-- NAVBAR -->
+  <nav class="border-b border-slate-800 bg-slate-900/80 backdrop-blur-md">
+    <div class="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
+
+      <!-- Logo -->
+      <div class="flex items-center gap-3">
+        <img src="/assets/Logo.png" alt="TenantFlow Logo" class="h-8 w-auto object-contain" />
+        <span class="text-lg font-semibold text-white">TenantFlow</span>
+      </div>
+
+      <!-- Links -->
+      <div class="flex items-center gap-6 text-sm text-slate-300">
+        <a href="/" class="hover:text-white transition">Home</a>
+        <a href="/register" class="hover:text-white transition">Register</a>
+      </div>
+
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <main class="flex flex-1 items-center justify-center px-4 py-12">
+
+    <div class="w-full max-w-md bg-slate-800/70 backdrop-blur-md border border-slate-700 rounded-2xl shadow-2xl p-8">
+
+      <!-- Logo + Heading -->
+      <div class="flex flex-col items-center text-center mb-8">
+        <img src="/assets/Logo.png" alt="TenantFlow Logo" class="h-14 w-auto mb-4" />
+        <h1 class="text-2xl font-bold">Welcome back</h1>
+        <p class="text-sm text-slate-400 mt-1">
+          Sign in to your workspace
+        </p>
+      </div>
+
+      <!-- FORM -->
+      <form action="/login" method="POST" class="space-y-5">
+
+        <!-- Email -->
+        <div>
+          <label for="email" class="block mb-2 text-sm font-medium text-white">
+            Email address
+          </label>
+          <input
+            type="email"
+            name="email"
+            id="email"
+            required
+            class="bg-slate-900 border border-slate-600 text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+            placeholder="name@company.com"
+          >
+        </div>
+
+        <!-- Password -->
+        <div>
+          <label for="password" class="block mb-2 text-sm font-medium text-white">
+            Password
+          </label>
+          <div class="relative">
+            <input
+              type="password"
+              name="password"
+              id="password"
+              required
+              class="bg-slate-900 border border-slate-600 text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 pr-10"
+              placeholder="••••••••"
+            >
+            <button type="button"
+              onclick="togglePassword()"
+              class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-white">
+              👁
+            </button>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <button
+          type="submit"
+          class="w-full text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center transition"
+        >
+          Sign In
+        </button>
+        <div class="text-center text-sm"> 
+            <h4>🔒 Your credentials are securely encrypted</h4>
+        </div>
+        
+    <!-- FOOTER -->
+  <footer class="border-t border-slate-800 py-6 text-center text-sm text-slate-500">
+    © <%= new Date().getFullYear() %> TenantFlow. All Rights Reserved.
+  </footer>
+
+  <!-- Flowbite JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
+
+  <!-- Password Toggle Script -->
+  <script>
+    function togglePassword() {
+      const password = document.getElementById("password");
+      password.type = password.type === "password" ? "text" : "password";
+    }
+  </script>
+
+</body>
+</html>
