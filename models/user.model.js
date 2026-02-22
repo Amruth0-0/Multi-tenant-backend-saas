@@ -21,19 +21,7 @@ const userSchema = new mongoose.Schema({
         required: [true, "Password required"],
         minLength : 8,
         select: false
-    },
-    workspaceId:{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Workspace',
-        required: true,
-        index: true
-    },
-    role: {
-        type: String,
-        enum: ['owner','admin','member'],
-        default: 'member'
     }
-
 },{timestamps: true})
 
 const User = mongoose.model("User", userSchema)
