@@ -17,11 +17,12 @@ const workspaceModel = new mongoose.Schema({
     ownerID: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
+        required: true
     },
     status:{
         type: String,
-        default: 'Active',
-        enum: ["Active", "Suspended", "Deleted"]
+        default: 'active',
+        enum: ["active", "suspended", "deleted"]
     }
 },{timestamps: true})
 
