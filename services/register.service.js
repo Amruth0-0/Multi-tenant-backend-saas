@@ -1,23 +1,16 @@
 const bcrypt = require('bcryptjs')
 const User = require('../models/user.model')
-const Workspace = require('../models/workspace.model')
 const jwt = require('jsonwebtoken')
 
-const authService = async ({workspaceName, username, email, password})=>{
+const authService = async ({username, email, password})=>{
     //Check email
     const isEmail = await User.exists({email})
-    if(isEmail){
-        res.status(409).json({
-            success: false,
-            message: "Email already exists"
-        })
-    }
+    if (isEmail){
+         const error = new Error("Email already exists")
+         error.status = 409
+         throw error
+        }
 
-    //Create workspace
-    const workspace = await Workspace.create({
-        name: workspaceName
-    })
-    
     //Hash password
     const hashpass = await bcrypt.hash(password, 10)
 
@@ -25,19 +18,13 @@ const authService = async ({workspaceName, username, email, password})=>{
     const user = await User.create({
          username,
          email,
-         password: hashpass,
-         workspaceId: workspace._id,
-         role: 'owner'
+         password: hashpass
     })
      
-   //Link workspace owner
-   workspace.ownerID = user._id
-   await workspace.save()
 
    //Create jwt token
    const token = jwt.sign({
     userId: user._id,
-    workspaceId: workspace._id,
     role: user.role
    },process.env.JWT_SECRET,
    {expiresIn: '1d'}

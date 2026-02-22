@@ -4,7 +4,6 @@ const authSignin = require('../services/login.service')
 const authRegister = async (req, res) => {
   try {
     const { token } = await authService({
-      workspaceName: req.body.workspaceName,
       username: req.body.username,
       email: req.body.email,
       password: req.body.password
@@ -12,10 +11,10 @@ const authRegister = async (req, res) => {
     res.status(201).json({
       success: true,
       token,
-      redirectTo: "/dashboard"
+      redirectTo: "/create-workspace"
   })
   } catch (err) {
-    res.status(err.status || 500).json({
+    res.status(err.status || 401).json({
       success: false,
       message: err.message || "Registration Failed"
     })
