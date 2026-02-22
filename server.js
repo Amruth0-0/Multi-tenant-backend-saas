@@ -4,6 +4,7 @@ const dotenv  = require('dotenv')
 const dbConnect = require('./config/db')
 const indexRouter = require('./routes/main.route');
 const authRouter = require('./routes/auth.route')
+const workspaceRouter = require('./routes/workspace.route')
 
 
 const app = express();
@@ -18,6 +19,7 @@ app.set('view engine', 'ejs');
 
 app.use('/', indexRouter)
 app.use('/api/auth', authRouter)
+app.use('/api/workspaces', workspaceRouter)
 
 
 app.listen(3000, () => {
