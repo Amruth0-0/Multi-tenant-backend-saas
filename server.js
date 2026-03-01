@@ -1,10 +1,11 @@
 const express = require('express');
-// const path = require('path');
+const path = require('path');
 const dotenv  = require('dotenv')
 const dbConnect = require('./config/db')
 const indexRouter = require('./routes/main.route');
 const authRouter = require('./routes/auth.route')
 const workspaceRouter = require('./routes/workspace.route')
+const projectRouter = require('./routes/project.route')
 
 
 const app = express();
@@ -15,11 +16,12 @@ app.use(express.static('public'));
 app.use(express.json())
 app.use(express.urlencoded({extended: true}));
 app.set('view engine', 'ejs');
-// app.set('views', path.join(__dirname, 'views'));
+app.set('views', path.join(__dirname, 'views'));
 
 app.use('/', indexRouter)
 app.use('/api/auth', authRouter)
 app.use('/api/workspaces', workspaceRouter)
+app.use("/api/projects", projectRouter)
 
 
 app.listen(3000, () => {

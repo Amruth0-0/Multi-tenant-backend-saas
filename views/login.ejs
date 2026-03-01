@@ -8,9 +8,6 @@
   <!-- Tailwind CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- Flowbite CSS -->
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.css" rel="stylesheet" />
-
 </head>
 
 <body class="bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white min-h-screen flex flex-col">
@@ -19,14 +16,12 @@
   <nav class="border-b border-slate-800 bg-slate-900/80 backdrop-blur-md">
     <div class="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
 
-      <!-- Logo -->
       <div class="flex items-center gap-3">
         <img src="/assets/Logo.png" alt="TenantFlow Logo" class="h-8 w-auto object-contain" />
-        <span class="text-lg font-semibold text-white">TenantFlow</span>
+        <span class="text-lg font-semibold tracking-wide">TenantFlow</span>
       </div>
 
-      <!-- Links -->
-      <div class="flex items-center gap-6 text-sm text-slate-300">
+      <div class="flex items-center gap-6 text-sm text-slate-400">
         <a href="/" class="hover:text-white transition">Home</a>
         <a href="/register" class="hover:text-white transition">Register</a>
       </div>
@@ -37,23 +32,28 @@
   <!-- MAIN -->
   <main class="flex flex-1 items-center justify-center px-4 py-12">
 
-    <div class="w-full max-w-md bg-slate-800/70 backdrop-blur-md border border-slate-700 rounded-2xl shadow-2xl p-8">
+    <div class="w-full max-w-md bg-slate-800/60 backdrop-blur-xl border border-slate-700 rounded-3xl shadow-[0_0_40px_rgba(0,0,0,0.6)] p-10">
 
-      <!-- Logo + Heading -->
+      <!-- Header -->
       <div class="flex flex-col items-center text-center mb-8">
         <img src="/assets/Logo.png" alt="TenantFlow Logo" class="h-14 w-auto mb-4" />
-        <h1 class="text-2xl font-bold">Welcome back</h1>
-        <p class="text-sm text-slate-400 mt-1">
-          Sign in to your workspace
+        <h1 class="text-3xl font-bold tracking-tight">Welcome back</h1>
+        <p class="text-sm text-slate-400 mt-2">
+          Sign in to access your workspaces
         </p>
       </div>
 
+      <!-- Error Message (Hidden by default) -->
+      <div id="errorBox" class="hidden mb-4 text-sm bg-red-500/10 border border-red-500/30 text-red-400 p-3 rounded-lg">
+        Invalid credentials. Please try again.
+      </div>
+
       <!-- FORM -->
-      <form action="/login" method="POST" class="space-y-5">
+      <form id="loginForm" action="/login" method="POST" class="space-y-6">
 
         <!-- Email -->
         <div>
-          <label for="email" class="block mb-2 text-sm font-medium text-white">
+          <label for="email" class="block mb-2 text-sm font-medium text-slate-300">
             Email address
           </label>
           <input
@@ -61,14 +61,14 @@
             name="email"
             id="email"
             required
-            class="bg-slate-900 border border-slate-600 text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+            class="bg-slate-900 border border-slate-700 text-white text-sm rounded-xl focus:ring-2 focus:ring-blue-600 focus:border-blue-600 block w-full p-3 transition"
             placeholder="name@company.com"
           >
         </div>
 
         <!-- Password -->
         <div>
-          <label for="password" class="block mb-2 text-sm font-medium text-white">
+          <label for="password" class="block mb-2 text-sm font-medium text-slate-300">
             Password
           </label>
           <div class="relative">
@@ -77,12 +77,12 @@
               name="password"
               id="password"
               required
-              class="bg-slate-900 border border-slate-600 text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 pr-10"
+              class="bg-slate-900 border border-slate-700 text-white text-sm rounded-xl focus:ring-2 focus:ring-blue-600 focus:border-blue-600 block w-full p-3 pr-12 transition"
               placeholder="••••••••"
             >
             <button type="button"
               onclick="togglePassword()"
-              class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-white">
+              class="absolute inset-y-0 right-0 flex items-center pr-4 text-slate-400 hover:text-white transition">
               👁
             </button>
           </div>
@@ -91,28 +91,40 @@
         <!-- Submit Button -->
         <button
           type="submit"
-          class="w-full text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center transition"
+          id="loginBtn"
+          class="w-full text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:ring-blue-800 font-medium rounded-xl text-sm px-5 py-3 text-center transition duration-200"
         >
           Sign In
         </button>
-        <div class="text-center text-sm"> 
-            <h4>🔒 Your credentials are securely encrypted</h4>
+
+        <div class="text-center text-xs text-slate-500">
+          🔒 Your credentials are securely encrypted
         </div>
-        
-    <!-- FOOTER -->
+
+      </form>
+
+    </div>
+
+  </main>
+
+  <!-- FOOTER -->
   <footer class="border-t border-slate-800 py-6 text-center text-sm text-slate-500">
     © <%= new Date().getFullYear() %> TenantFlow. All Rights Reserved.
   </footer>
 
-  <!-- Flowbite JS -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
-
-  <!-- Password Toggle Script -->
+  <!-- Scripts -->
   <script>
     function togglePassword() {
       const password = document.getElementById("password");
       password.type = password.type === "password" ? "text" : "password";
     }
+
+    // Optional: Add loading state
+    document.getElementById("loginForm").addEventListener("submit", function () {
+      const btn = document.getElementById("loginBtn");
+      btn.innerText = "Signing in...";
+      btn.disabled = true;
+    });
   </script>
 
 </body>
