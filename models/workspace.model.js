@@ -2,7 +2,7 @@ const mongoose = require('mongoose')
 const {v4 : uuid} = require('uuid')
 
 const workspaceModel = new mongoose.Schema({
-    tenantID: {
+    tenantId: {
         type: String,
         default: () => uuid(),
         unique: true,

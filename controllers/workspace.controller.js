@@ -13,7 +13,7 @@ const workspaceCreate = async(req, res)=>{
         const userId = req.user.userId
         const workspace = await workspaceService.createWorkspace({
               name,
-            userId
+             userId
          })
              res.status(201).json({
                  success: true,
