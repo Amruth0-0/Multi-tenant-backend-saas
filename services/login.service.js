@@ -1,5 +1,5 @@
 const user = require("../models/user.model")
-const jwt = require("jsonwebtoken")
+const WorkspaceMember = require("../models/workspaceMember.model")
 const bcrypt = require("bcryptjs")
 
 const authSignin = async({email, password})=>{
@@ -12,15 +12,21 @@ const authSignin = async({email, password})=>{
      if(!match){
        throw new Error("Invalid Credentials") 
      }
-
-    const token = jwt.sign({
-         userId : found._id
-
-     },
-     process.env.JWT_SECRET,
-     {expiresIn: '1d'}
-    )
-     return  { token }
+     
+     const memberships = await WorkspaceMember.find({user: found._id
+     })
+     .populate("workspace");
+     
+     const workspaces = await memberships.map(member => ({
+         workspaceId: member.workspace._id,
+         name: member.workspace.name,
+         role: member.role
+     }))
+     
+     return {
+          userId: found_id,
+          workspaces
+     }
 }
 
 module.exports =  authSignin 

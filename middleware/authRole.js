@@ -1,7 +1,21 @@
-const workspace = require('../models/workspace.model')
-const jwt = require('jsonwebtoken')
+const { json } = require("express");
 
-exports.authRole = async(req, res, next)=>{
-    
-    next()
-}
+exports.authRole = (...allowedRoles)=>{
+      return (req, res, next)=>{
+
+        if(!req.user || !req.user.role){
+            return res.status(403).json({
+                success: false,
+                message: "Access denied"
+            });
+        }
+
+        if(!allowedRoles.includes(req.user.role)){
+            return res.status(403).json({
+                success: false,
+                message: "Access denied"
+            })
+        }
+          next()
+      }
+     }
