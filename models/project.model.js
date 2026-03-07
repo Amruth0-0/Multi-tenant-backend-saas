@@ -3,11 +3,13 @@ const mongoose = require('mongoose')
 const projectSchema = new mongoose.Schema({
     name: {
      type: String,
-     required: true
+     required: true,
+     trim: true
      
     },
     description: {
         type: String, 
+        default: ""
     },
 
     tenantId: {
@@ -29,7 +31,7 @@ const projectSchema = new mongoose.Schema({
     }
 }, {timestamps: true})
 
-projectSchema.index({name: 1, tenantID: 1}, {unique: true})
+projectSchema.index({name: 1, tenantId: 1}, {unique: true})
 
-const project = mongoose.model('project', projectSchema)
-module.exports = project
+const Project = mongoose.model('Project', projectSchema)
+module.exports = Project

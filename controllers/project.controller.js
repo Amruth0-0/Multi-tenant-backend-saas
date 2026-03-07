@@ -117,7 +117,10 @@ const deleteProject = async(req, res)=>{
         })
     }
 
-    await projectModel.deleteOne({ _id: projectId })
+    await projectModel.deleteOne({ 
+        _id: projectId,
+        tenantId: req.user.tenantId
+    })
 
     res.status(200).json({
         success: true,
@@ -132,4 +135,58 @@ const deleteProject = async(req, res)=>{
   }
 }
 
-module.exports = {createProject, getAllProjects, getProjectById, deleteProject}
+const updateProject = async(req, res) =>{
+    try{
+        const { projectId } = req.params
+        if(!mongoose.Types.ObjectId.isValid(projectId)){
+            return res.status(400).json({
+                success: false,
+                message: "Invalid Project Id"
+            })
+        }
+
+        const project = await projectModel.findOne({
+             _id: projectId,
+             tenantId: req.user.tenantId
+        })
+
+        if(!project){
+            return res.status(404).json({
+                success: false,
+                message: "Project not found"
+            })
+        }
+
+        if(req.user.role !== 'admin' && req.user.role !== "owner"){
+        return res.status(403).json({
+            success: false,
+            message: "Not Authorized to Update"
+        })
+       }
+        const name = req.body.name?.trim()
+        const description = req.body.description?.trim()
+        const status = req.body.status
+
+        const update = await projectModel.findOneAndUpdate({
+            _id: projectId,
+            tenantId: req.user.tenantId
+        },{
+            name,
+            description,
+            status
+        },{new: true})
+
+        res.status(200).json({
+            success: true,
+            project: update,
+            message: "Project Updated successfully"
+        })
+     }catch(err){
+        return res.status(500).json({
+            success: false,
+            message: "Failed to update project"
+        })
+    }
+}
+
+module.exports = {createProject, getAllProjects, getProjectById, deleteProject, updateProject}
