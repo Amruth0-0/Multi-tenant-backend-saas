@@ -1,12 +1,13 @@
 const mongoose = require('mongoose')
 
 const memberSchema = new mongoose.Schema({
-    user: {
+    userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true
     },
-    workspace: {
+
+    workspaceId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Workspace",
         required: true
@@ -15,10 +16,15 @@ const memberSchema = new mongoose.Schema({
         type: String,
         enum: ["owner","admin","member"],
         required: true
+    },
+    tenantId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Workspace",
+        required: true
     }
 },{timestamps: true})
 
-memberSchema.index({ user: 1, workspace: 1 }, { unique: true })
+memberSchema.index({ userId: 1, workspaceId: 1 }, { unique: true })
 
 const WorkspaceMember = mongoose.model('WorkspaceMember',memberSchema)
 module.exports = WorkspaceMember
