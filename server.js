@@ -6,6 +6,8 @@ const indexRouter = require('./routes/main.route');
 const authRouter = require('./routes/auth.route')
 const workspaceRouter = require('./routes/workspace.route')
 const projectRouter = require('./routes/project.route')
+const taskRouter = require('./routes/task.route')
+const workspaceMemberRouter = require('./routes/workspaceMember.route')
 
 
 const app = express();
@@ -22,6 +24,8 @@ app.use('/', indexRouter)
 app.use('/api/auth', authRouter)
 app.use('/api/workspaces', workspaceRouter)
 app.use("/api/projects", projectRouter)
+app.use("/api", taskRouter)
+app.use('/api', workspaceMemberRouter)
 
 
 app.listen(3000, () => {
