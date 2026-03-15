@@ -13,7 +13,8 @@ const projectSchema = new mongoose.Schema({
     },
 
     tenantId: {
-       type: String,
+       type: mongoose.Schema.Types.ObjectId,
+       ref: "Workspace",
        required: true,
        index: true
     },

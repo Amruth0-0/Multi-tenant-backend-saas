@@ -17,11 +17,6 @@ const memberSchema = new mongoose.Schema({
         enum: ["owner","admin","member"],
         required: true
     },
-    tenantId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Workspace",
-        required: true
-    }
 },{timestamps: true})
 
 memberSchema.index({ userId: 1, workspaceId: 1 }, { unique: true })

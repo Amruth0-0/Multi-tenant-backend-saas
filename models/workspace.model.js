@@ -14,7 +14,7 @@ const workspaceModel = new mongoose.Schema({
         required: true,
         trim: true
     },
-    ownerID: {
+    ownerId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true
@@ -26,5 +26,6 @@ const workspaceModel = new mongoose.Schema({
     }
 },{timestamps: true})
 
+workspaceModel.index({ name: 1, ownerId: 1 }, { unique: true })
 const Workspace = mongoose.model("Workspace", workspaceModel)
 module.exports = Workspace
