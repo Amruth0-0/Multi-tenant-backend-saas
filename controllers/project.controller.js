@@ -1,190 +1,120 @@
-const projectModel = require("../models/project.model")
-const mongoose = require('mongoose')
+const projectService = require('../services/project.service')
 
 const createProject = async (req, res)=>{
     try{
         const name = req.body.name?.trim()
         const description = req.body.description?.trim()
-        if(!name){
-            return res.status(400).json({
-                success: false,
-                message: "Name is required"
-            })
-        }
-         
-        const project = await projectModel.create({
-            name,
-            description,
-            tenantId: req.user.tenantId,
-            createdBy: req.user.userId
-        })
 
-        res.status(201).json({
+        const project = await projectService.createProject(
+            name, 
+            description,
+            req.user.tenantId,
+            req.user.userId
+        )
+
+        return res.status(201).json({
             success: true,
-            project,
-            message: "Project created "
+            message: "Project created successfully",
+            project
         })
 
     }catch(err){
       return res.status(500).json({
         success: false,
-        message: "Project Creation Failed" 
+        message: err.message || "Project Creation Failed" 
       })
     }
 }
 
 const getAllProjects = async(req, res) =>{
     try{
-        const projects  =await projectModel.find({
-            tenantId: req.user.tenantId
-            }).sort({createdAt: -1})
+        const projects  = await projectService.getAllProjects(
+            req.user.tenantId
+        )
     
-        res.status(200).json({
+        return res.status(200).json({
             success: true,
             count: projects.length,
             projects
         })
+
     }catch(err){
         return res.status(500).json({
             success: false,
-            message: "Failed to fetch projects"
+            message: err.message || "Failed to fetch projects"
         })
     } 
 }
 
 const getProjectById = async(req, res)=>{
     try{
-        const { projectId } = req.params
-        if (!mongoose.Types.ObjectId.isValid(projectId)) {
-            return res.status(400).json({
-               success: false,
-               message: "Invalid project ID"
-            })
-        }
-
-        const project = await projectModel.findOne({
-            _id: projectId,
-            tenantId: req.user.tenantId,
-            
-        })
-
-        if(!project){
-            return res.status(404).json({
-                success: false,
-                message: "project not found"
-            })
-        }
-
+        const project = await projectService.getProjectById(
+            req.params.projectId,
+            req.user.tenantId
+        )
+     
         return res.status(200).json({
             success: true,
             project
         })
+
     }catch(err){
         return res.status(500).json({
             success: false,
-            message: "Failed to fetch project"
+            message: err.message || "Failed to fetch project"
         })
     }
 }
 
 const deleteProject = async(req, res)=>{
   try{
-     const {projectId} = req.params
 
-    if (!mongoose.Types.ObjectId.isValid(projectId)) {
-            return res.status(400).json({
-               success: false,
-               message: "Invalid project ID"
-            })
-        }
+    const project = await projectService.deleteProject(
+        req.params.projectId,
+        req.user.role,
+        req.user.tenantId
+    )
 
-    const project = await projectModel.findOne({
-        _id: projectId,
-        tenantId: req.user.tenantId
-    })
-
-    if(!project){
-        return res.status(404).json({
-            success: false,
-            message: "Project not found"
-        })
-    }
-
-    if(req.user.role !== 'admin' && req.user.role !== "owner"){
-        return res.status(403).json({
-            success: false,
-            message: "Not Authorized to delete"
-        })
-    }
-
-    await projectModel.deleteOne({ 
-        _id: projectId,
-        tenantId: req.user.tenantId
-    })
-
-    res.status(200).json({
+    return res.status(200).json({
         success: true,
-        message: "Project deleted successfully"
+        message: "Project deleted successfully",
+        project
     })
 
   }catch(err){
     return res.status(500).json({
         success: false,
-        message: "Failed to delete project"
+        message: err.message || "Failed to delete project"
     })
   }
 }
 
 const updateProject = async(req, res) =>{
     try{
-        const { projectId } = req.params
-        if(!mongoose.Types.ObjectId.isValid(projectId)){
-            return res.status(400).json({
-                success: false,
-                message: "Invalid Project Id"
-            })
-        }
-
-        const project = await projectModel.findOne({
-             _id: projectId,
-             tenantId: req.user.tenantId
-        })
-
-        if(!project){
-            return res.status(404).json({
-                success: false,
-                message: "Project not found"
-            })
-        }
-
-        if(req.user.role !== 'admin' && req.user.role !== "owner"){
-        return res.status(403).json({
-            success: false,
-            message: "Not Authorized to Update"
-        })
-       }
+       
         const name = req.body.name?.trim()
         const description = req.body.description?.trim()
         const status = req.body.status
 
-        const update = await projectModel.findOneAndUpdate({
-            _id: projectId,
-            tenantId: req.user.tenantId
-        },{
+        const project = await projectService.updateProject(
+            req.params.projectId,
+            req.user.tenantId,
+            req.user.role,
             name,
             description,
             status
-        },{new: true})
+        )
 
-        res.status(200).json({
+        return res.status(200).json({
             success: true,
-            project: update,
+            project,
             message: "Project Updated successfully"
         })
+
      }catch(err){
         return res.status(500).json({
             success: false,
-            message: "Failed to update project"
+            message: err.message || "Failed to update project"
         })
     }
 }
