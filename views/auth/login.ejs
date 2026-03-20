@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Login | TenantFlow</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Tailwind CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+
+  <body
+    class="bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white min-h-screen flex flex-col"
+  >
+    <!-- NAVBAR -->
+    <nav class="border-b border-slate-800 bg-slate-900/80 backdrop-blur-md">
+      <div
+        class="max-w-7xl mx-auto flex items-center justify-between px-6 py-4"
+      >
+        <div class="flex items-center gap-3">
+          <img
+            src="/assets/Logo.png"
+            alt="TenantFlow Logo"
+            class="h-8 w-auto object-contain"
+          />
+          <span class="text-lg font-semibold tracking-wide">TenantFlow</span>
+        </div>
+
+        <div class="flex items-center gap-6 text-sm text-slate-400">
+          <a href="/" class="hover:text-white transition">Home</a>
+          <a href="/register" class="hover:text-white transition">Register</a>
+        </div>
+      </div>
+    </nav>
+
+    <!-- MAIN -->
+    <main class="flex flex-1 items-center justify-center px-4 py-12">
+      <div
+        class="w-full max-w-md bg-slate-800/60 backdrop-blur-xl border border-slate-700 rounded-3xl shadow-[0_0_40px_rgba(0,0,0,0.6)] p-10"
+      >
+        <!-- Header -->
+        <div class="flex flex-col items-center text-center mb-8">
+          <img
+            src="/assets/Logo.png"
+            alt="TenantFlow Logo"
+            class="h-14 w-auto mb-4"
+          />
+          <h1 class="text-3xl font-bold tracking-tight">Welcome back</h1>
+          <p class="text-sm text-slate-400 mt-2">
+            Sign in to access your workspaces
+          </p>
+        </div>
+
+        <!-- Error Message (Hidden by default) -->
+        <div
+          id="errorBox"
+          class="hidden mb-4 text-sm bg-red-500/10 border border-red-500/30 text-red-400 p-3 rounded-lg"
+        >
+          Invalid credentials. Please try again.
+        </div>
+
+        <!-- FORM -->
+        <form id="loginForm" class="space-y-6">
+          <!-- Email -->
+          <div>
+            <label
+              for="email"
+              class="block mb-2 text-sm font-medium text-slate-300"
+            >
+              Email address
+            </label>
+            <input
+              type="email"
+              name="email"
+              id="email"
+              required
+              class="bg-slate-900 border border-slate-700 text-white text-sm rounded-xl focus:ring-2 focus:ring-blue-600 focus:border-blue-600 block w-full p-3 transition"
+              placeholder="name@company.com"
+            />
+          </div>
+
+          <!-- Password -->
+          <div>
+            <label
+              for="password"
+              class="block mb-2 text-sm font-medium text-slate-300"
+            >
+              Password
+            </label>
+            <div class="relative">
+              <input
+                type="password"
+                name="password"
+                id="password"
+                required
+                class="bg-slate-900 border border-slate-700 text-white text-sm rounded-xl focus:ring-2 focus:ring-blue-600 focus:border-blue-600 block w-full p-3 pr-12 transition"
+                placeholder="••••••••"
+              />
+              <button
+                type="button"
+                id="togglePassword"
+                class="absolute inset-y-0 right-0 flex items-center pr-4 text-slate-400 hover:text-white transition"
+              >
+                👁
+              </button>
+            </div>
+          </div>
+
+          <!-- Submit Button -->
+          <button
+            type="submit"
+            id="loginBtn"
+            class="w-full text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:ring-blue-800 font-medium rounded-xl text-sm px-5 py-3 text-center transition duration-200"
+          >
+            Sign In
+          </button>
+
+          <div class="text-center text-xs text-slate-500">
+            🔒 Your credentials are securely encrypted
+          </div>
+        </form>
+      </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer
+      class="border-t border-slate-800 py-6 text-center text-sm text-slate-500"
+    >
+      © <%= new Date().getFullYear() %> TenantFlow. All Rights Reserved.
+    </footer>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/auth.js"></script>
+  </body>
+</html>
