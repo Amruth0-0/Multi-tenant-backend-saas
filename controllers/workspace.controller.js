@@ -1,258 +1,196 @@
-const workspaceService = require('../services/workspace.service')
-const workspaceModel = require('../models/workspace.model')
-const workspaceMemberModel = require('../models/workspaceMember.model')
-const userModel = require('../models/user.model')
-const mongoose = require('mongoose')
+const workspaceService = require("../services/workspace.service");
+const workspaceMemberModel = require("../models/workspaceMember.model");
+const mongoose = require("mongoose");
 
-const workspaceCreate = async(req, res)=>{
-    try{
-        const name = req.body.name
-        if(!name){
-            return res.status(400).json({
-                 success: false,
-                 message: "Bad request"
-        })
-        }  
+const workspaceCreate = async (req, res) => {
+  try {
+    const name = req.body.name;
 
-        const userId = req.user.userId
-        const workspace = await workspaceService.createWorkspace({
-              name,
-             userId
-         })
-             res.status(201).json({
-                 success: true,
-                message: "Workspace created",
-                workspace
-             })
-    }catch(error){
-         console.log(error);
-        return res.status(500).json({
-           success: false,
-           message: "Workspace creation failed"
-        })
+    if (!name) {
+      return res.status(400).json({
+        success: false,
+        message: "Bad request",
+      });
     }
-}
 
-const inviteMember = async(req, res) =>{
-    try{
-       const { workspaceId } = req.params
-       const { userId } = req.body
-       if(!mongoose.Types.ObjectId.isValid(workspaceId)){
-        return res.status(400).json({
-            success: false,
-            message: "Invalid WorkspaceId"
-        })
-      }
+    const userId = req.user.userId;
 
-      if(!mongoose.Types.ObjectId.isValid(userId)){
-        return res.status(404).json({
-            success: false,
-            message: "Invalid UserId"
-        })
-      }
+    const workspace = await workspaceService.createWorkspace({
+      name,
+      userId,
+    });
 
-      const workspace = await workspaceModel.exists({
-          _id: workspaceId
-      })
-      
-      if(!workspace){
-          return res.status(404).json({
-             success:false,
-             message:"Workspace not found"
-          })
-       }
+    return res.status(201).json({
+      success: true,
+      message: "Workspace created",
+      workspace,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      success: false,
+      message: "Workspace creation failed",
+    });
+  }
+};
 
-      const user = await userModel.exists({
-          _id: userId
-      }) 
+const getWorkspaceMembers = async (req, res) => {
+  try {
+    const workspaceId = req.user.tenantId;
 
-      if(!user){
-          return res.status(404).json({
-             success:false,
-             message:"User not found"
-          })
-       }
-      
-      const member = await workspaceMemberModel.exists({
-        userId,
-        workspaceId
-      })
-      
-      if(member){
-        return res.status(400).json({
-        success:false,
-        message:"User already a member of this workspace"
-     })
-     }
+    if (!mongoose.Types.ObjectId.isValid(workspaceId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid WorkspaceId",
+      });
+    }
 
-     const newMember = await workspaceMemberModel.create({
-        userId,
+    const members = await workspaceMemberModel
+      .find({
         workspaceId,
-        role: 'member',
-        tenantId: workspaceId
-     })
+      })
+      .populate("userId", "name email");
 
-    res.status(201).json({
-       success:true,
-       member: newMember,
-       message:"Member invited successfully"
-     })
-      
-    }catch(err){
-        return res.status(500).json({
-            success: false,
-            message: "Member Invite Failed"
-        })
-    }
-}
+    return res.status(200).json({
+      success: true,
+      count: members.length,
+      members,
+    });
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch members",
+    });
+  }
+};
 
-const getWorkspaceMembers = async(req, res) =>{
-    try{
-        const { workspaceId } = req.params
-        if(!mongoose.Types.ObjectId.isValid(workspaceId)){
-          return res.status(400).json({
-            success: false,
-            message: "Invalid WorkspaceId"
-        })
-      }
-
-      const members  = await workspaceMemberModel.find({
-            workspaceId,
-            tenantId: workspaceId
-            }).populate("userId", "name email")
-    
-        res.status(200).json({
-            success: true,
-            count: members.length,
-            members
-        })
-    }catch(err){
-        return res.status(500).json({
-            success: false,
-            message: "Failed to fetch members"
-        })
-    } 
-}
-
-const removeMember = async(req, res)=>{
-  try{
-     const {memberId} = req.params
+const removeMember = async (req, res) => {
+  try {
+    const { memberId } = req.params;
 
     if (!mongoose.Types.ObjectId.isValid(memberId)) {
-            return res.status(400).json({
-               success: false,
-               message: "Invalid Member ID"
-            })
-        }
+      return res.status(400).json({
+        success: false,
+        message: "Invalid Member ID",
+      });
+    }
 
     const member = await workspaceMemberModel.findOne({
-        _id: memberId,
-        tenantId: req.user.tenantId
-    })
+      _id: memberId,
+      workspaceId: req.user.tenantId,
+    });
 
-    if(!member){
-        return res.status(404).json({
-            success: false,
-            message: "Member not found"
-        })
-    }
-
-    if(member.role === "owner"){
-        return res.status(400).json({
-            success:false,
-            message:"Workspace owner cannot be removed"
-        })
-    }
-
-    if(req.user.role !== 'admin' && req.user.role !== "owner"){
-        return res.status(403).json({
-            success: false,
-            message: "Not Authorized to delete"
-        })
-    }
-
-    await workspaceMemberModel.deleteOne({ 
-        _id: memberId,
-        tenantId: req.user.tenantId
-     })
-
-    res.status(200).json({
-        success: true,
-        message: "Member deleted successfully"
-    })
-
-  }catch(err){
-    return res.status(500).json({
+    if (!member) {
+      return res.status(404).json({
         success: false,
-        message: "Failed to delete Member"
-    })
+        message: "Member not found",
+      });
+    }
+
+    if (member.role === "owner") {
+      return res.status(400).json({
+        success: false,
+        message: "Workspace owner cannot be removed",
+      });
+    }
+
+    if (req.user.role !== "admin" && req.user.role !== "owner") {
+      return res.status(403).json({
+        success: false,
+        message: "Not Authorized to delete",
+      });
+    }
+
+    await workspaceMemberModel.deleteOne({
+      _id: memberId,
+      workspaceId: req.user.tenantId,
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Member deleted successfully",
+    });
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      message: "Failed to delete Member",
+    });
   }
-}
+};
 
-const updateMemberRole = async(req, res) =>{
-    try{
-        const { memberId } = req.params
-        if(!mongoose.Types.ObjectId.isValid(memberId)){
-            return res.status(400).json({
-                success: false,
-                message: "Invalid member Id"
-            })
-        }
+const updateMemberRole = async (req, res) => {
+  try {
+    const { memberId } = req.params;
 
-        const member = await workspaceMemberModel.findOne({
-             _id: memberId,
-             tenantId: req.user.tenantId
-        })
-
-        if(!member){
-            return res.status(404).json({
-                success: false,
-                message: "Member not found"
-            })
-        }
-
-        if(member.role === "owner"){
-        return res.status(400).json({
-            success:false,
-            message:"Owner cannot be Updated"
-        })
+    if (!mongoose.Types.ObjectId.isValid(memberId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid member Id",
+      });
     }
 
-        if(req.user.role !== 'admin' && req.user.role !== "owner"){
-        return res.status(403).json({
-            success: false,
-            message: "Not Authorized to Update"
-        })
-       }
-       
-        const role = req.body.role
+    const member = await workspaceMemberModel.findOne({
+      _id: memberId,
+      workspaceId: req.user.tenantId,
+    });
 
-         if(!["admin","member"].includes(role)){
-            return res.status(400).json({
-                success:false,
-                message:"Invalid role"
-            })
-        }
-
-        const update = await workspaceMemberModel.findOneAndUpdate({
-            _id: memberId,
-            tenantId: req.user.tenantId
-        },{
-             role
-        },{new: true})
-
-        res.status(200).json({
-            success: true,
-            member: update,
-            message: "Member role updated successfully"
-        })
-     }catch(err){
-        return res.status(500).json({
-            success: false,
-            message: "Failed to update member role"
-        })
+    if (!member) {
+      return res.status(404).json({
+        success: false,
+        message: "Member not found",
+      });
     }
-}
 
+    if (member.role === "owner") {
+      return res.status(400).json({
+        success: false,
+        message: "Owner cannot be Updated",
+      });
+    }
 
-module.exports = { workspaceCreate, inviteMember, getWorkspaceMembers, removeMember, updateMemberRole }
+    if (req.user.role !== "admin" && req.user.role !== "owner") {
+      return res.status(403).json({
+        success: false,
+        message: "Not Authorized to Update",
+      });
+    }
+
+    const role = req.body.role;
+
+    if (!["admin", "member"].includes(role)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid role",
+      });
+    }
+
+    const update = await workspaceMemberModel.findOneAndUpdate(
+      {
+        _id: memberId,
+        workspaceId: req.user.tenantId,
+      },
+      {
+        role,
+      },
+      { new: true },
+    );
+
+    return res.status(200).json({
+      success: true,
+      member: update,
+      message: "Member role updated successfully",
+    });
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      message: "Failed to update member role",
+    });
+  }
+};
+
+module.exports = {
+  workspaceCreate,
+  getWorkspaceMembers,
+  removeMember,
+  updateMemberRole,
+};

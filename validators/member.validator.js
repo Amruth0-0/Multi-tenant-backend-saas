@@ -1,13 +1,6 @@
-const { body, param, validationResult } = require("express-validator");
+const { body, validationResult } = require("express-validator");
 
 const inviteMemberValidator = [
-  param("workspaceId")
-    .notEmpty()
-    .withMessage("Workspace ID is required")
-    .bail()
-    .isMongoId()
-    .withMessage("Invalid workspace ID"),
-
   body("email")
     .notEmpty()
     .withMessage("User email is required")
@@ -16,9 +9,7 @@ const inviteMemberValidator = [
     .withMessage("Invalid email format"),
 
   body("role")
-    .notEmpty()
-    .withMessage("Role is required")
-    .bail()
+     .optional()
     .isIn(["OWNER", "ADMIN", "MEMBER"])
     .withMessage("Role must be OWNER, ADMIN, or MEMBER"),
 
