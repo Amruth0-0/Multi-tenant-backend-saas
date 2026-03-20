@@ -1,6 +1,8 @@
+const jwt = require('jsonwebtoken')
 const authService = require('../services/register.service')
 const authSignin = require('../services/login.service')
 const workspaceMember = require("../models/workspaceMember.model")
+
 
 const authRegister = async (req, res) => {
   try {
@@ -24,13 +26,13 @@ const authRegister = async (req, res) => {
 
 const login = async(req,res)=>{
  try{
-     const {userID, workspaces} = await authSignin({
+     const {userId, workspaces} = await authSignin({
       email: req.body.email,
       password: req.body.password
      })
      res.status(200).json({
         success: true,
-        userID,
+        userId,
         workspaces
      })
 
@@ -46,27 +48,30 @@ const selectWorkspace = async(req, res)=>{
    try{
       const {userId, workspaceId} = req.body
 
-      const membership = await workspaceMember.find({
-          user: userId, workspace: workspaceId
-      }).populate("workspace");
+      const membership = await workspaceMember.findOne({
+          userId: userId, workspaceId: workspaceId
+      }).populate("workspaceId");
 
       if(!membership){
           return res.status(403).json({
-              sucess: false,
+              success: false,
               message: "Access denied"
           });
       }
 
       const token = jwt.sign({
         userId,
-        tenantId: membership.workspace.tenantId,
+        tenantId: membership.workspaceId.tenantId,
         role: membership.role
       },process.env.JWT_SECRET,
-          {expiresIn: "1d"}
-        );
+        {expiresIn: "1d"})
+
+        res.cookie("token", token, {
+        httpOnly: true
+        })
 
       res.status(200).json({
-        sucess: true,
+        success: true,
         token,
         redirectTo: '/dashboard'
       })
@@ -79,5 +84,22 @@ const selectWorkspace = async(req, res)=>{
    }
 }
 
+const logout = async (req, res) => {
+    try{
+        res.clearCookie("token")
 
-module.exports = { authRegister, login, selectWorkspace}
+        return res.status(200).json({
+            success: true,
+            message: "Logged out successfully"
+        })
+
+    }catch(err){
+        return res.status(500).json({
+            success: false,
+            message: "Logout failed"
+        })
+    }
+}
+
+
+module.exports = { authRegister, login, selectWorkspace, logout}

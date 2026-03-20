@@ -22,10 +22,10 @@ app.set('views', path.join(__dirname, 'views'));
 
 app.use('/', indexRouter)
 app.use('/api/auth', authRouter)
-app.use('/api/workspaces', workspaceRouter)
+app.use('/api/workspace', workspaceRouter)
 app.use("/api/projects", projectRouter)
-app.use("/api", taskRouter)
-app.use('/api', workspaceMemberRouter)
+app.use("/api/tasks", taskRouter)
+app.use('/api/workspace-members', workspaceMemberRouter)
 
 
 app.listen(3000, () => {
