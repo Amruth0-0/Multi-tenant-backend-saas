@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<title>Workspace Members | TenantFlow</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+</head>
+
+<body class="bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white min-h-screen flex flex-col">
+
+
+<!-- NAVBAR -->
+<nav class="border-b border-slate-800 bg-slate-900/80 backdrop-blur-md">
+<div class="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
+
+<div class="flex items-center gap-3">
+<img src="/assets/Logo.png" class="h-8">
+<span class="text-lg font-semibold">TenantFlow</span>
+</div>
+
+<div class="flex gap-6 text-sm text-slate-400">
+<a href="/dashboard">Dashboard</a>
+<a href="/projects">Projects</a>
+<a href="/workspace/members" class="text-white">Members</a>
+<a href="/logout">Logout</a>
+</div>
+
+</div>
+</nav>
+
+
+
+<main class="flex-1 px-6 py-10 max-w-6xl mx-auto w-full">
+
+<div class="flex justify-between items-center mb-8">
+
+<div>
+<h1 class="text-3xl font-bold">
+Workspace Members
+</h1>
+
+<p class="text-slate-400 text-sm mt-1">
+Manage members and roles
+</p>
+</div>
+
+<a
+href="/workspace/members/invite"
+class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg text-sm"
+>
++ Invite Member
+</a>
+
+</div>
+
+
+
+<!-- MEMBERS LIST -->
+<div class="bg-slate-800/60 border border-slate-700 rounded-2xl overflow-hidden">
+
+<table class="w-full text-sm">
+
+<thead class="border-b border-slate-700 text-slate-400">
+
+<tr>
+<th class="text-left p-4">Member</th>
+<th>Role</th>
+<th>Action</th>
+</tr>
+
+</thead>
+
+
+<tbody>
+
+<% if(members && members.length){ %>
+
+<% members.forEach(member => { %>
+
+<tr class="border-b border-slate-800">
+
+<td class="p-4 flex items-center gap-3">
+
+<img
+src="https://ui-avatars.com/api/?name=<%= member.name %>"
+class="w-8 h-8 rounded-full"
+/>
+
+<div>
+<div class="font-medium"><%= member.name %></div>
+<div class="text-xs text-slate-400">
+<%= member.email %>
+</div>
+</div>
+
+</td>
+
+<td class="text-center">
+
+<span class="text-xs bg-slate-700 px-2 py-1 rounded">
+<%= member.role %>
+</span>
+
+</td>
+
+<td class="text-center">
+
+<a
+href="/workspace/members/remove/<%= member._id %>"
+class="text-red-400 hover:text-red-300 text-xs"
+>
+Remove
+</a>
+
+</td>
+
+</tr>
+
+<% }) %>
+
+<% } else { %>
+
+<tr>
+<td colspan="3" class="text-center py-10 text-slate-400">
+No members in this workspace
+</td>
+</tr>
+
+<% } %>
+
+</tbody>
+
+</table>
+
+</div>
+
+</main>
+
+
+
+<footer class="border-t border-slate-800 py-6 text-center text-sm text-slate-500">
+
+© <%= new Date().getFullYear() %> TenantFlow
+
+</footer>
+
+</body>
+</html>

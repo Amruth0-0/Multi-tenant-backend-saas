@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Create Task | TenantFlow</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<!-- ❗ CHANGE: protected page -->
+<body data-protected="true"
+  class="bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white min-h-screen flex flex-col"
+>
+
+
+<!-- NAVBAR -->
+<nav class="border-b border-slate-800 bg-slate-900/80 backdrop-blur-md">
+  <div class="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
+
+    <div class="flex items-center gap-3">
+      <img src="/assets/Logo.png" class="h-8" />
+      <span class="text-lg font-semibold">TenantFlow</span>
+    </div>
+
+    <div class="flex gap-6 text-sm text-slate-400">
+      <a href="/dashboard">Dashboard</a>
+      <a href="/projects">Projects</a>
+      <a href="/workspace/members">Members</a>
+      <button id="logoutBtn">Logout</button>
+
+    </div>
+  </div>
+</nav>
+
+
+
+<main class="flex-1 flex items-center justify-center px-6 py-12">
+
+  <div class="w-full max-w-xl bg-slate-800/60 border border-slate-700 rounded-3xl p-10">
+
+    <!-- HEADER -->
+    <div class="mb-8 text-center">
+      <h1 class="text-3xl font-bold">Create Task</h1>
+      <p class="text-slate-400 text-sm mt-2">
+        Add a new task to your project
+      </p>
+    </div>
+
+    <form id="taskForm" class="space-y-6">
+
+      <input type="hidden" id="projectId" value="<%= projectId %>" />
+
+
+      <!-- TITLE -->
+      <div>
+        <label class="block text-sm text-slate-300 mb-2">Task Title</label>
+
+        <input
+          type="text"
+          id="title"
+          required
+          placeholder="Setup authentication system"
+          class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm focus:ring-2 focus:ring-blue-600"
+        />
+      </div>
+
+
+      <!-- DESCRIPTION -->
+      <div>
+        <label class="block text-sm text-slate-300 mb-2">Description</label>
+
+        <textarea
+          id="description"
+          rows="4"
+          placeholder="Describe the task..."
+          class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm focus:ring-2 focus:ring-blue-600"
+        ></textarea>
+      </div>
+
+
+      <!-- STATUS -->
+      <div>
+        <label class="block text-sm text-slate-300 mb-2">Status</label>
+
+        <select id="status"
+          class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm"
+        >
+          <option value="todo">Todo</option>
+          <option value="progress">In Progress</option>
+          <option value="done">Done</option>
+        </select>
+      </div>
+
+
+      <!-- ASSIGN -->
+      <div>
+        <label class="block text-sm text-slate-300 mb-2">Assign Member</label>
+
+        <select id="assignedTo"
+          class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm"
+        >
+          <option value="">Unassigned</option>
+
+          <% if (members?.length) { %>
+            <% members.forEach(member => { %>
+              <option value="<%= member._id %>">
+                <%= member.name %>
+              </option>
+            <% }) %>
+          <% } %>
+
+        </select>
+      </div>
+
+
+      <!-- DUE DATE -->
+      <div>
+        <label class="block text-sm text-slate-300 mb-2">Due Date</label>
+
+        <input
+          type="date"
+          id="dueDate"
+          class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm"
+        />
+      </div>
+
+
+      <!-- SUBMIT -->
+      <button
+        type="submit"
+        id="taskBtn"
+        class="w-full bg-blue-600 hover:bg-blue-700 py-3 rounded-xl text-sm font-medium"
+      >
+        Create Task
+      </button>
+
+    </form>
+
+  </div>
+
+</main>
+
+
+
+<footer class="border-t border-slate-800 py-6 text-center text-sm text-slate-500">
+  © <%= new Date().getFullYear() %> TenantFlow
+</footer>
+
+<script src="/js/api.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/tasks.js"></script>
+
+</body>
+</html>

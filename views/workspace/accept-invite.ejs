@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Accept Invite | TenantFlow</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+
+  <body
+    class="bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white min-h-screen flex flex-col"
+  >
+    <nav class="border-b border-slate-800 bg-slate-900/80 backdrop-blur-md">
+      <div
+        class="max-w-7xl mx-auto flex items-center justify-between px-6 py-4"
+      >
+        <div class="flex items-center gap-3">
+          <img
+            src="/assets/Logo.png"
+            alt="TenantFlow Logo"
+            class="h-8 w-auto object-contain"
+          />
+          <span class="text-lg font-semibold tracking-wide">TenantFlow</span>
+        </div>
+
+        <div class="flex items-center gap-6 text-sm text-slate-400">
+          <a href="/" class="hover:text-white transition">Home</a>
+          <a href="/auth/login" class="hover:text-white transition">Login</a>
+          <a href="/auth/register" class="hover:text-white transition"
+            >Register</a
+          >
+        </div>
+      </div>
+    </nav>
+
+    <main class="flex flex-1 items-center justify-center px-4 py-12">
+      <div
+        class="w-full max-w-md bg-slate-800/60 backdrop-blur-xl border border-slate-700 rounded-3xl shadow-[0_0_40px_rgba(0,0,0,0.6)] p-10"
+      >
+        <div class="flex flex-col items-center text-center mb-8">
+          <img
+            src="/assets/Logo.png"
+            alt="TenantFlow Logo"
+            class="h-14 w-auto mb-4"
+          />
+          <h1 class="text-3xl font-bold tracking-tight">Workspace Invite</h1>
+          <p class="text-sm text-slate-400 mt-2">
+            Review the invitation details and join the workspace
+          </p>
+        </div>
+
+        <div
+          id="messageBox"
+          class="mb-6 text-sm text-center bg-slate-900 border border-slate-700 text-slate-300 p-3 rounded-xl"
+        >
+          <span id="message">Checking invite...</span>
+        </div>
+
+        <div
+          id="inviteInfo"
+          class="hidden space-y-4 bg-slate-900/80 border border-slate-700 rounded-2xl p-5 mb-6"
+        >
+          <div class="flex justify-between gap-4 text-sm">
+            <span class="text-slate-400">Workspace</span>
+            <span
+              id="workspaceName"
+              class="font-medium text-white text-right"
+            ></span>
+          </div>
+
+          <div class="flex justify-between gap-4 text-sm">
+            <span class="text-slate-400">Invited Email</span>
+            <span
+              id="inviteEmail"
+              class="font-medium text-white text-right break-all"
+            ></span>
+          </div>
+
+          <div class="flex justify-between gap-4 text-sm">
+            <span class="text-slate-400">Role</span>
+            <span
+              id="inviteRole"
+              class="font-medium text-white text-right capitalize"
+            ></span>
+          </div>
+
+          <div class="flex justify-between gap-4 text-sm">
+            <span class="text-slate-400">Expires At</span>
+            <span
+              id="inviteExpiry"
+              class="font-medium text-white text-right"
+            ></span>
+          </div>
+        </div>
+
+        <button
+          id="acceptInviteBtn"
+          type="button"
+          class="hidden w-full text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:ring-blue-800 font-medium rounded-xl text-sm px-5 py-3 text-center transition duration-200"
+        >
+          Accept Invite
+        </button>
+      </div>
+    </main>
+
+    <footer
+      class="border-t border-slate-800 py-6 text-center text-sm text-slate-500"
+    >
+      © <%= new Date().getFullYear() %> TenantFlow. All Rights Reserved.
+    </footer>
+
+    <script>
+      window.INVITE_TOKEN = "<%= token %>";
+    </script>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/invite.js"></script>
+  </body>
+</html>

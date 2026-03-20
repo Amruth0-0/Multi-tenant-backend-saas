@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Project | TenantFlow</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body data-protected="true"
+  class="bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white min-h-screen flex flex-col"
+>
+
+<!-- NAVBAR -->
+<nav class="border-b border-slate-800 bg-slate-900/80 backdrop-blur-md">
+  <div class="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
+
+    <div class="flex items-center gap-3">
+      <img src="/assets/Logo.png" class="h-8" />
+      <span class="text-lg font-semibold">TenantFlow</span>
+    </div>
+
+    <div class="flex gap-6 text-sm text-slate-400">
+      <a href="/dashboard">Dashboard</a>
+      <a href="/projects">Projects</a>
+      <a href="/workspace/members">Members</a>
+      <button id="logoutBtn">Logout</button>
+    </div>
+  </div>
+</nav>
+
+
+
+<main class="flex-1 px-6 py-10 max-w-7xl mx-auto w-full">
+
+<!-- HEADER -->
+<div class="flex justify-between items-center mb-8">
+
+  <div>
+    <h1 class="text-3xl font-bold">
+      <%= project?.name || "Project" %>
+    </h1>
+
+    <p class="text-slate-400 text-sm mt-1">
+      <%= project?.description || "" %>
+    </p>
+  </div>
+
+  <a href="/tasks/create"
+    class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg text-sm">
+    + Create Task
+  </a>
+
+</div>
+
+
+<div class="flex gap-4 mb-6">
+  <button id="listBtn"
+    class="px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-sm">
+    List View
+  </button>
+
+  <button id="boardBtn"
+    class="px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-sm">
+    Board View
+  </button>
+
+</div>
+
+
+<div id="listView">
+
+  <div class="bg-slate-800/60 border border-slate-700 rounded-2xl overflow-hidden">
+
+    <table class="w-full text-sm">
+
+      <thead class="border-b border-slate-700 text-slate-400">
+        <tr>
+          <th class="text-left p-4">Task</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+
+      <tbody>
+
+        <% if (tasks?.length) { %>
+
+          <% tasks.forEach(task => { %>
+
+            <tr class="border-b border-slate-800">
+
+              <td class="p-4">
+                <div class="font-medium"><%= task.title %></div>
+                <div class="text-slate-400 text-xs">
+                  <%= task.description %>
+                </div>
+              </td>
+
+              <td class="text-center">
+                <span class="text-xs bg-slate-700 px-2 py-1 rounded">
+                  <%= task.status %>
+                </span>
+              </td>
+
+              <td class="text-center">
+                <a href="/tasks/<%= task._id %>"
+                  class="text-blue-400 hover:text-blue-300 text-xs">
+                  View
+                </a>
+              </td>
+
+            </tr>
+
+          <% }) %>
+
+        <% } else { %>
+
+          <tr>
+            <td colspan="3" class="text-center py-10 text-slate-400">
+              No tasks yet
+            </td>
+          </tr>
+
+        <% } %>
+
+      </tbody>
+
+    </table>
+
+  </div>
+</div>
+
+
+
+<!-- BOARD VIEW -->
+<div id="boardView" class="hidden">
+
+  <div class="grid md:grid-cols-3 gap-6">
+
+    <% const safeTasks = tasks || []; %> 
+
+    <!-- TODO -->
+    <div class="bg-slate-800/60 border border-slate-700 rounded-2xl p-4">
+      <h2 class="text-sm font-semibold mb-4 text-slate-300">Todo</h2>
+
+      <div class="space-y-3">
+
+        <% safeTasks.filter(t => t.status === "todo").forEach(task => { %>
+
+          <div class="bg-slate-900 border border-slate-700 rounded-xl p-4">
+            <div class="text-sm font-medium"><%= task.title %></div>
+            <div class="text-xs text-slate-400"><%= task.description %></div>
+          </div>
+
+        <% }) %>
+
+      </div>
+    </div>
+
+
+    <!-- PROGRESS -->
+    <div class="bg-slate-800/60 border border-slate-700 rounded-2xl p-4">
+      <h2 class="text-sm font-semibold mb-4 text-yellow-400">In Progress</h2>
+
+      <div class="space-y-3">
+
+        <% safeTasks.filter(t => t.status === "progress").forEach(task => { %>
+
+          <div class="bg-slate-900 border border-slate-700 rounded-xl p-4">
+            <div class="text-sm font-medium"><%= task.title %></div>
+            <div class="text-xs text-slate-400"><%= task.description %></div>
+          </div>
+
+        <% }) %>
+
+      </div>
+    </div>
+
+
+    <!-- DONE -->
+    <div class="bg-slate-800/60 border border-slate-700 rounded-2xl p-4">
+      <h2 class="text-sm font-semibold mb-4 text-green-400">Done</h2>
+
+      <div class="space-y-3">
+
+        <% safeTasks.filter(t => t.status === "done").forEach(task => { %>
+
+          <div class="bg-slate-900 border border-slate-700 rounded-xl p-4">
+            <div class="text-sm font-medium"><%= task.title %></div>
+            <div class="text-xs text-slate-400"><%= task.description %></div>
+          </div>
+
+        <% }) %>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</main>
+
+
+
+<footer class="border-t border-slate-800 py-6 text-center text-sm text-slate-500">
+© <%= new Date().getFullYear() %> TenantFlow
+</footer>
+
+<script src="/js/api.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/tasks.js"></script>
+
+</body>
+</html>

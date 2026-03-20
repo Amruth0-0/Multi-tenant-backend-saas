@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+
+  <title>Dashboard | TenantFlow</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body data-protected="true"
+  class="bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white min-h-screen flex flex-col"
+>
+
+<!-- NAVBAR -->
+<nav class="border-b border-slate-800 bg-slate-900/80 backdrop-blur-md">
+  <div class="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
+
+    <!-- Logo -->
+    <div class="flex items-center gap-3">
+      <img src="/assets/Logo.png" alt="TenantFlow Logo" class="h-8 w-auto object-contain" />
+      <span class="text-lg font-semibold tracking-wide">TenantFlow</span>
+    </div>
+
+    <!-- Navigation -->
+    <div class="flex items-center gap-6 text-sm text-slate-400">
+
+      <a href="/dashboard" class="hover:text-white transition">Dashboard</a>
+
+      <a href="/projects" class="hover:text-white transition">Projects</a>
+
+      <a href="/workspace/members" class="hover:text-white transition">Members</a>
+
+      <button
+        id="logoutBtn"
+        class="hover:text-white transition text-sm text-slate-400"
+      >
+        Logout
+      </button>
+
+    </div>
+  </div>
+</nav>
+
+
+<!-- MAIN -->
+<main class="flex-1 px-6 py-10 max-w-7xl mx-auto w-full">
+
+  <!-- HEADER -->
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold">Dashboard</h1>
+    <p class="text-slate-400 text-sm mt-1">
+      Welcome back! Here's your workspace overview.
+    </p>
+  </div>
+
+
+  <!-- STATS -->
+  <div class="grid md:grid-cols-4 gap-6 mb-10">
+
+    <!-- Workspace -->
+    <div class="bg-slate-800/60 border border-slate-700 rounded-2xl p-6">
+      <p class="text-sm text-slate-400">Workspace</p>
+      <h2 class="text-xl font-semibold mt-2">
+        <%= workspace?.name || "My Workspace" %> 
+      </h2>
+    </div>
+
+    <!-- Projects -->
+    <div class="bg-slate-800/60 border border-slate-700 rounded-2xl p-6">
+      <p class="text-sm text-slate-400">Projects</p>
+      <h2 class="text-2xl font-bold mt-2">
+        <%= projectCount || 0 %>
+      </h2>
+    </div>
+
+    <!-- Tasks -->
+    <div class="bg-slate-800/60 border border-slate-700 rounded-2xl p-6">
+      <p class="text-sm text-slate-400">Tasks</p>
+      <h2 class="text-2xl font-bold mt-2">
+        <%= taskCount || 0 %>
+      </h2>
+    </div>
+
+    <!-- Members -->
+    <div class="bg-slate-800/60 border border-slate-700 rounded-2xl p-6">
+      <p class="text-sm text-slate-400">Members</p>
+      <h2 class="text-2xl font-bold mt-2">
+        <%= memberCount || 0 %>
+      </h2>
+    </div>
+
+  </div>
+
+
+  <!-- QUICK ACTIONS -->
+  <div class="bg-slate-800/60 border border-slate-700 rounded-2xl p-6 mb-10">
+
+    <h2 class="text-lg font-semibold mb-4">Quick Actions</h2>
+
+    <div class="flex flex-wrap gap-3">
+
+      <a href="/projects/create"
+        class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg text-sm transition">
+        + Create Project
+      </a>
+
+      <a href="/workspace/members/invite"
+        class="border border-slate-600 hover:border-slate-400 px-4 py-2 rounded-lg text-sm transition">
+        Invite Member
+      </a>
+
+      <a href="/projects"
+        class="border border-slate-600 hover:border-slate-400 px-4 py-2 rounded-lg text-sm transition">
+        View Projects
+      </a>
+
+    </div>
+  </div>
+
+
+  <!-- WIDGETS -->
+  <div class="grid md:grid-cols-2 gap-6 mb-10">
+
+    <!-- RECENT PROJECTS -->
+    <div class="bg-slate-800/60 border border-slate-700 rounded-2xl p-6">
+
+      <h2 class="text-lg font-semibold mb-4">Recent Projects</h2>
+
+      <div class="space-y-3 text-sm">
+
+        <% if (projects?.length) { %>
+
+          <% projects.forEach(project => { %>
+
+            <div class="flex justify-between items-center">
+
+              <a href="/projects/<%= project._id %>" class="hover:underline">
+                <%= project.name %>
+              </a>
+
+              <span class="text-slate-400 text-xs">
+                <%= project.status %>
+              </span>
+
+            </div>
+
+          <% }) %>
+
+        <% } else { %>
+
+          <p class="text-slate-400 italic">No projects yet</p>
+
+        <% } %>
+
+      </div>
+    </div>
+
+
+    <!-- MEMBERS -->
+    <div class="bg-slate-800/60 border border-slate-700 rounded-2xl p-6">
+
+      <h2 class="text-lg font-semibold mb-4">Workspace Members</h2>
+
+      <div class="space-y-3 text-sm">
+
+        <% if (members?.length) { %>
+
+          <% members.forEach(member => { %>
+
+            <div class="flex justify-between items-center">
+              <span><%= member.name %></span>
+              <span class="text-xs text-slate-400"><%= member.role %></span>
+            </div>
+
+          <% }) %>
+
+        <% } else { %>
+
+          <p class="text-slate-400 italic">No members yet</p>
+
+        <% } %>
+
+      </div>
+    </div>
+
+  </div>
+
+
+  <!-- ACTIVITY -->
+  <div class="bg-slate-800/60 border border-slate-700 rounded-2xl p-6">
+
+    <h2 class="text-lg font-semibold mb-4">Recent Activity</h2>
+
+    <div class="space-y-4 text-sm">
+
+      <div class="flex justify-between">
+        <span>New project <strong>Project Alpha</strong> created</span>
+        <span class="text-slate-500">2h ago</span>
+      </div>
+
+      <div class="flex justify-between">
+        <span>Task <strong>Setup CI/CD</strong> completed</span>
+        <span class="text-slate-500">5h ago</span>
+      </div>
+
+      <div class="flex justify-between">
+        <span><strong>John Smith</strong> joined workspace</span>
+        <span class="text-slate-500">1d ago</span>
+      </div>
+
+    </div>
+  </div>
+
+</main>
+
+
+<!-- FOOTER -->
+<footer class="border-t border-slate-800 py-6 text-center text-sm text-slate-500">
+  © <%= new Date().getFullYear() %> TenantFlow. All Rights Reserved.
+</footer>
+
+<script src="/js/api.js"></script>
+<script src="/js/auth.js"></script>
+
+</body>
+</html>
