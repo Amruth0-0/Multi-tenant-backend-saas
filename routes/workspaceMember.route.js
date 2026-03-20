@@ -1,16 +1,24 @@
-const express = require("express")
-const verifyToken = require("../middleware/verifyToken")
-const {  inviteMember,  getWorkspaceMembers, removeMember,
-     updateMemberRole} = require("../controllers/workspaceMember.controller")
-const router = express.Router()
+const express = require("express");
+const { verifyToken } = require("../middleware/verifyToken");
+const {
+  getWorkspaceMembers,
+  removeMember,
+  updateMemberRole,
+} = require("../controllers/workspace.controller");
+const { authorizeRole, authRole } = require("../middleware/authRole"); 
 
+const router = express.Router();
 
-router.post("/workspace/:workspaceId/members", verifyToken, inviteMember)
+router.use(verifyToken);
 
-router.get("/workspace/:workspaceId/members", verifyToken, getWorkspaceMembers)
+// Get members
+router.get("/members", getWorkspaceMembers); 
 
-router.delete("/workspace/members/:memberId", verifyToken, removeMember)
+// Remove member
+router.delete("/members/:memberId", authRole("admin"), removeMember); 
 
-router.patch("/workspace/members/:memberId/role", verifyToken, updateMemberRole)
+// Update role
+router.patch(  "/members/:memberId/role",  authRole("admin"), updateMemberRole,
+);
 
-module.exports = router
+module.exports = router;

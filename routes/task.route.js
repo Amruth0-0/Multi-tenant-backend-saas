@@ -1,19 +1,27 @@
 const express = require("express")
-const verifyToken = require("../middleware/verifyToken")
-const { createTask, getTasksByProject, getTaskById, updateTask,
+const { verifyToken } = require("../middleware/verifyToken")
+const { authRole } = require("../middleware/authRole")
+const { createTask, getTasksByProject, getTaskById, updateTask, 
      deleteTask} = require("../controllers/task.controller")
+const { taskCreateValidator, taskUpdateValidator} = require("../validators/task.validator")
 
 const router = express.Router()
 
+router.use(verifyToken)
 
+//Create Task
+router.post("/:projectId", taskCreateValidator, createTask)
 
-router.post("/projects/:projectId/tasks", verifyToken, createTask)
+//Get Tasks By Project
+router.get("/project/:projectId", authRole("admin"), taskUpdateValidator, getTasksByProject)
 
-router.get("/projects/:projectId/tasks", verifyToken, getTasksByProject)
-router.get("/tasks/:taskId", verifyToken, getTaskById)
+//Get Single Task
+router.get("/:taskId", getTaskById)
 
-router.put("/tasks/:taskId", verifyToken, updateTask)
+//Update Task
+router.put("/:taskId", authRole("admin"), updateTask)
 
-router.delete("/tasks/:taskId", verifyToken, deleteTask)
+//Delete Task
+router.delete("/:taskId", authRole("admin"), deleteTask)
 
 module.exports = router
