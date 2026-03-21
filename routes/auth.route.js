@@ -14,7 +14,7 @@ router.post('/login', loginValidator, login);
 router.post('/logout', verifyToken, logout);
 
 //Select Workspace
-router.post(/workspace/select, verifyToken, selectWorkspace);
+router.post('/workspace/select', verifyToken, selectWorkspace);
 
 
 

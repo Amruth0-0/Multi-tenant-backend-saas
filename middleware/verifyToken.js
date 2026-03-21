@@ -16,7 +16,7 @@ exports.verifyToken = (req, res, next)=>{
              }
              const decoded = jwt.verify(token, process.env.JWT_SECRET)
 
-             if(!decoded.userId || !decoded.tenantId || !decoded.role){
+             if(!decoded.userId){
               return res.status(401).json({
                 success: false,
                 message: "Invalid Payload"
@@ -25,6 +25,7 @@ exports.verifyToken = (req, res, next)=>{
 
              req.user = {
                 userId: decoded.userId,
+                workspaceId: decoded.workspaceId,
                 tenantId: decoded.tenantId,
                 role: decoded.role
              };

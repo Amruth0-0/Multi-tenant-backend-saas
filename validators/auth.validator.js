@@ -1,7 +1,7 @@
 const { body, validationResult } = require("express-validator");
 
 const registerValidator = [
-  body("name").trim().notEmpty().withMessage("Username is required")
+  body("username").trim().notEmpty().withMessage("Username is required")
     .bail() .isLength({ min: 4, max: 12 }) .withMessage("Username must be between 4 and 12 characters"),
 
   body("email") .notEmpty() .withMessage("Email is required") .bail() .isEmail() 

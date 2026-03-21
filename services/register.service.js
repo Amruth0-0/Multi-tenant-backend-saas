@@ -1,14 +1,13 @@
 const bcrypt = require('bcryptjs')
 const User = require('../models/user.model')
 const jwt = require('jsonwebtoken')
+const createError = require("../utils/createError")
 
 const authService = async ({username, email, password})=>{
     //Check email
     const isEmail = await User.exists({email})
     if (isEmail){
-         const error = new Error("Email already exists")
-         error.status = 409
-         throw error
+         throw createError("Email already exists", 409);
         }
 
     //Hash password

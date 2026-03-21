@@ -26,15 +26,17 @@ const authRegister = async (req, res) => {
 
 const login = async(req,res)=>{
  try{
-     const {userId, workspaces} = await authSignin({
+     const result  = await authSignin({
       email: req.body.email,
       password: req.body.password
      })
      res.status(200).json({
-        success: true,
-        userId,
-        workspaces
-     })
+       success: true,
+       token: result.token,
+       userId: result.userId,
+       workspaces: result.workspaces,
+       redirectTo: result.workspaces.length > 0 ? "/dashboard" : "/create-workspace",
+     });
 
  }catch(err){
      res.status(err.status || 500).json({
@@ -77,9 +79,9 @@ const selectWorkspace = async(req, res)=>{
       })
 
    }catch(err){
-       res.status(500).json({
-           success: false,
-           message: "Workspace selection failed"
+       res.status(err.status || 500).json({
+         success: false,
+         message: err.message || "Workspace selection failed",
        });
    }
 }
@@ -94,10 +96,10 @@ const logout = async (req, res) => {
         })
 
     }catch(err){
-        return res.status(500).json({
-            success: false,
-            message: "Logout failed"
-        })
+        return res.status(err.status || 500).json({
+          success: false,
+          message: err.message || "Logout failed",
+        });
     }
 }
 
