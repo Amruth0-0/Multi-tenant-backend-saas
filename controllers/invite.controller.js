@@ -4,11 +4,11 @@ const createInvite = async (req, res) => {
   try {
     const email = req.body.email?.trim().toLowerCase();
     const role = req.body.role || "member";
-    const workspaceId = req.user.tenantId;
+    const workspaceId = req.user.workspaceId;
 
     const invite = await inviteService.createInvite({
       email,
-      workspaceId,
+      workspaceId: workspaceId,
       role,
     });
 
@@ -19,9 +19,9 @@ const createInvite = async (req, res) => {
       inviteLink: `http://localhost:3000/invite/${invite.token}`,
     });
   } catch (err) {
-    res.status(400).json({
+    res.status(err.status || 400).json({
       success: false,
-      message: err.message,
+      message: err.message || "Invite creation failed"
     });
   }
 };
@@ -43,9 +43,9 @@ const getInviteDetails = async (req, res) => {
       },
     });
   } catch (err) {
-    res.status(400).json({
+    res.status(err.status || 400).json({
       success: false,
-      message: err.message,
+      message: err.message || "Invite details failed"
     });
   }
 };
@@ -63,9 +63,9 @@ const acceptInvite = async (req, res) => {
       data: invite,
     });
   } catch (err) {
-    res.status(400).json({
+    res.status(err.status || 400).json({
       success: false,
-      message: err.message,
+      message: err.message
     });
   }
 };

@@ -25,19 +25,17 @@ const workspaceCreate = async (req, res) => {
       message: "Workspace created",
       workspace,
     });
-  } catch (error) {
-    console.log(error);
-    return res.status(500).json({
+  } catch (err) {
+    return res.status(err.status || 500).json({
       success: false,
-      message: "Workspace creation failed",
+      message: err.message ||  "Workspace creation failed",
     });
   }
 };
 
 const getWorkspaceMembers = async (req, res) => {
   try {
-    const workspaceId = req.user.tenantId;
-
+    const { workspaceId } = req.params
     if (!mongoose.Types.ObjectId.isValid(workspaceId)) {
       return res.status(400).json({
         success: false,
@@ -45,11 +43,23 @@ const getWorkspaceMembers = async (req, res) => {
       });
     }
 
+    const isMember = await workspaceMemberModel.findOne({
+      userId: req.user.userId,
+      workspaceId: workspaceId,
+    });
+
+    if (!isMember) {
+      return res.status(403).json({
+        success: false,
+        message: "Access denied",
+      });
+    }
+
     const members = await workspaceMemberModel
       .find({
         workspaceId,
       })
-      .populate("userId", "name email");
+      .populate("userId", "username email");
 
     return res.status(200).json({
       success: true,
@@ -57,27 +67,46 @@ const getWorkspaceMembers = async (req, res) => {
       members,
     });
   } catch (err) {
-    return res.status(500).json({
+    return res.status(err.status || 500).json({
       success: false,
-      message: "Failed to fetch members",
+      message: err.message || "Failed to fetch members",
     });
   }
 };
 
 const removeMember = async (req, res) => {
   try {
-    const { memberId } = req.params;
+    const {workspaceId, memberId} = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(workspaceId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid workspaceId",
+      });
+    }
 
     if (!mongoose.Types.ObjectId.isValid(memberId)) {
       return res.status(400).json({
         success: false,
-        message: "Invalid Member ID",
+        message: "Invalid memberId",
+      });
+    }
+
+    const isMember = await workspaceMemberModel.findOne({
+      userId: req.user.userId,
+      workspaceId: workspaceId,
+    });
+
+    if (!isMember) {
+      return res.status(403).json({
+        success: false,
+        message: "Access denied",
       });
     }
 
     const member = await workspaceMemberModel.findOne({
       _id: memberId,
-      workspaceId: req.user.tenantId,
+      workspaceId: workspaceId,
     });
 
     if (!member) {
@@ -90,7 +119,7 @@ const removeMember = async (req, res) => {
     if (member.role === "owner") {
       return res.status(400).json({
         success: false,
-        message: "Workspace owner cannot be removed",
+        message:  "Workspace owner cannot be removed",
       });
     }
 
@@ -101,9 +130,9 @@ const removeMember = async (req, res) => {
       });
     }
 
-    await workspaceMemberModel.deleteOne({
+    await workspaceMemberModel.findOneAndDelete({
       _id: memberId,
-      workspaceId: req.user.tenantId,
+      workspaceId: workspaceId,
     });
 
     return res.status(200).json({
@@ -111,16 +140,17 @@ const removeMember = async (req, res) => {
       message: "Member deleted successfully",
     });
   } catch (err) {
-    return res.status(500).json({
+    return res.status(err.status || 500).json({
       success: false,
-      message: "Failed to delete Member",
+      message: err.message || "Failed to delete Member",
     });
   }
 };
 
 const updateMemberRole = async (req, res) => {
   try {
-    const { memberId } = req.params;
+    const { workspaceId, memberId } = req.params;
+    const role = req.body.role;
 
     if (!mongoose.Types.ObjectId.isValid(memberId)) {
       return res.status(400).json({
@@ -129,9 +159,21 @@ const updateMemberRole = async (req, res) => {
       });
     }
 
+    const isMember = await workspaceMemberModel.findOne({
+      userId: req.user.userId,
+      workspaceId: workspaceId,
+    });
+
+    if (!isMember) {
+      return res.status(403).json({
+        success: false,
+        message: "Access denied",
+      });
+    }
+
     const member = await workspaceMemberModel.findOne({
       _id: memberId,
-      workspaceId: req.user.tenantId,
+      workspaceId: workspaceId,
     });
 
     if (!member) {
@@ -155,7 +197,6 @@ const updateMemberRole = async (req, res) => {
       });
     }
 
-    const role = req.body.role;
 
     if (!["admin", "member"].includes(role)) {
       return res.status(400).json({
@@ -167,7 +208,7 @@ const updateMemberRole = async (req, res) => {
     const update = await workspaceMemberModel.findOneAndUpdate(
       {
         _id: memberId,
-        workspaceId: req.user.tenantId,
+        workspaceId: workspaceId,
       },
       {
         role,
@@ -181,9 +222,9 @@ const updateMemberRole = async (req, res) => {
       message: "Member role updated successfully",
     });
   } catch (err) {
-    return res.status(500).json({
+    return res.status(err.status || 500).json({
       success: false,
-      message: "Failed to update member role",
+      message: err.message || "Failed to update member role",
     });
   }
 };

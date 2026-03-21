@@ -2,6 +2,7 @@ const inviteModel = require("../models/invite.model");
 const userModel = require("../models/user.model");
 const workspaceMemberModel = require("../models/workspaceMember.model");
 const generateInviteToken = require("../utils/generateToken");
+const createError = require("../utils/createError")
 
 const createInvite = async ({ email, workspaceId, role }) => {
   const existingPendingInvite = await inviteModel.findOne({
@@ -12,14 +13,14 @@ const createInvite = async ({ email, workspaceId, role }) => {
   });
 
   if (existingPendingInvite) {
-    throw new Error("A pending invite already exists for this email");
+   throw createError("A pending invite already exists for this email", 409);
   }
 
   const token = generateInviteToken();
 
   const invite = await inviteModel.create({
     email,
-    workspaceId,
+    workspaceId: workspaceId,
     role,
     token,
     expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24),
@@ -34,15 +35,15 @@ const getInviteByToken = async (token) => {
     .populate("workspaceId", "name");
 
   if (!invite) {
-    throw new Error("Invalid invite");
+    throw createError("Invalid invite", 404);
   }
 
   if (invite.status === "accepted") {
-    throw new Error("Invite already used");
+   throw createError("Invite already used", 409);
   }
 
   if (invite.expiresAt < new Date()) {
-    throw new Error("Invite expired");
+   throw createError("Invite expired", 410);
   }
 
   return invite;
@@ -52,39 +53,39 @@ const acceptInvite = async ({ token, userId }) => {
   const invite = await inviteModel.findOne({ token });
 
   if (!invite) {
-    throw new Error("Invalid invite");
+    throw createError("Invite expired", 410);
   }
 
   if (invite.status === "accepted") {
-    throw new Error("Invite already used");
+    throw createError("Invite already used", 409);
   }
 
   if (invite.expiresAt < new Date()) {
-    throw new Error("Invite expired");
+    throw createError("Invite expired", 410);
   }
 
   const user = await userModel.findById(userId);
 
   if (!user) {
-    throw new Error("User not found");
+    throw createError("User not found", 404);
   }
 
   if (user.email.toLowerCase() !== invite.email.toLowerCase()) {
-    throw new Error("This invite is not assigned to your account");
+     throw createError("This invite is not assigned to your account", 403);
   }
 
   const existingMember = await workspaceMemberModel.findOne({
-    user: userId,
-    workspace: invite.workspaceId,
+    userId: userId,
+    workspaceId: invite.workspaceId,
   });
 
   if (existingMember) {
-    throw new Error("You are already a member of this workspace");
+    throw createError("You are already a member of this workspace", 409);
   }
 
   await workspaceMemberModel.create({
-    user: userId,
-    workspace: invite.workspaceId,
+    userId: userId,
+    workspaceId: invite.workspaceId,
     role: invite.role,
   });
 

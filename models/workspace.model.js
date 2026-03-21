@@ -6,6 +6,7 @@ const workspaceModel = new mongoose.Schema({
         type: String,
         default: () => uuid(),
         unique: true,
+        required: true,
         immutable: true,
         index: true
     },
