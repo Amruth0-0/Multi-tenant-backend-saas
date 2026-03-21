@@ -1,9 +1,10 @@
 const projectModel = require("../models/project.model")
 const mongoose = require('mongoose')
+const createError = require("../utils/createError")
 
 const createProject = async (name, description, tenantId, createdBy)=>{
     if(!name){
-        throw new Error("Name is required");
+       throw createError("Name is required", 400);
     }
          
     const project = await projectModel.create({
@@ -26,7 +27,7 @@ const getAllProjects = async(tenantId) =>{
 
 const getProjectById = async(projectId, tenantId)=>{
     if (!mongoose.Types.ObjectId.isValid(projectId)) {
-            throw new Error("Invalid project Id")
+        throw createError("Invalid project Id", 400);
         }
 
         const project = await projectModel.findOne({
@@ -36,7 +37,7 @@ const getProjectById = async(projectId, tenantId)=>{
         })
 
         if(!project){
-           throw new Error("Project not found")
+          throw createError("Project not found", 404);
         }
 
    return project
@@ -44,11 +45,11 @@ const getProjectById = async(projectId, tenantId)=>{
 
 const deleteProject = async(projectId, role, tenantId)=>{
     if (!mongoose.Types.ObjectId.isValid(projectId)) {
-        throw new Error("Invalid project Id")
+         throw createError("Invalid project Id", 400);
     }
 
      if(role !== 'admin' && role !== "owner"){
-       throw new Error("Not authorized to delete project")
+      throw createError("Not authorized to delete project", 403);
     }
 
     const project = await projectModel.findOneAndDelete({
@@ -57,7 +58,7 @@ const deleteProject = async(projectId, role, tenantId)=>{
     })
 
      if(!project){
-           throw new Error("Project not found")
+        throw createError("Project not found", 404);
         }
 
     return project
@@ -66,11 +67,15 @@ const deleteProject = async(projectId, role, tenantId)=>{
 
 const updateProject = async(projectId, tenantId, role, name, description, status) =>{
         if(!mongoose.Types.ObjectId.isValid(projectId)){
-           throw new Error("Invalid project id")
+           const error = new Error("Invalid project id");
+           error.statusCode = 400;
+           throw error;
         }
 
         if(role !== 'admin' && role !== "owner"){
-             throw new Error("Not authorized to update")
+            const error = new Error("Not authorized to update");
+            error.statusCode = 403;
+            throw error;
         }
         
         const updateData= {}

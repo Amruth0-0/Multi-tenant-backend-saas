@@ -19,7 +19,7 @@ const createProject = async (req, res)=>{
         })
 
     }catch(err){
-      return res.status(500).json({
+      return res.status(err.status || 500).json({
         success: false,
         message: err.message || "Project Creation Failed" 
       })
@@ -39,7 +39,7 @@ const getAllProjects = async(req, res) =>{
         })
 
     }catch(err){
-        return res.status(500).json({
+        return res.status(err.status || 500).json({
             success: false,
             message: err.message || "Failed to fetch projects"
         })
@@ -59,7 +59,7 @@ const getProjectById = async(req, res)=>{
         })
 
     }catch(err){
-        return res.status(500).json({
+        return res.status(err.status || 500).json({
             success: false,
             message: err.message || "Failed to fetch project"
         })
@@ -82,7 +82,7 @@ const deleteProject = async(req, res)=>{
     })
 
   }catch(err){
-    return res.status(500).json({
+    return res.status(err.status || 500).json({
         success: false,
         message: err.message || "Failed to delete project"
     })
@@ -112,7 +112,7 @@ const updateProject = async(req, res) =>{
         })
 
      }catch(err){
-        return res.status(500).json({
+        return res.status(err.status || 500).json({
             success: false,
             message: err.message || "Failed to update project"
         })

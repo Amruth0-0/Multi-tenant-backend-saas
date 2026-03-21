@@ -18,10 +18,10 @@ router.get("/", getAllProjects)
 router.get("/:projectId", getProjectById)
 
 //Update Project
-router.put("/:projectId", authRole("admin"), projectUpdateValidator, updateProject)
+router.put("/:projectId", authRole("owner","admin"), projectUpdateValidator, updateProject)
 
 //Delete Project
-router.delete("/:projectId",authRole("admin"), deleteProject)
+router.delete("/:projectId",authRole("owner","admin"), deleteProject)
 
 module.exports = router
 

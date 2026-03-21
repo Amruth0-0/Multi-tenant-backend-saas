@@ -13,15 +13,15 @@ router.use(verifyToken)
 router.post("/:projectId", taskCreateValidator, createTask)
 
 //Get Tasks By Project
-router.get("/project/:projectId", authRole("admin"), taskUpdateValidator, getTasksByProject)
+router.get("/project/:projectId", authRole("owner","admin"), taskUpdateValidator, getTasksByProject)
 
 //Get Single Task
 router.get("/:taskId", getTaskById)
 
 //Update Task
-router.put("/:taskId", authRole("admin"), updateTask)
+router.put("/:taskId", authRole("owner","admin"), updateTask)
 
 //Delete Task
-router.delete("/:taskId", authRole("admin"), deleteTask)
+router.delete("/:taskId", authRole("owner","admin"), deleteTask)
 
 module.exports = router

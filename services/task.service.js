@@ -1,10 +1,11 @@
 const taskModel = require('../models/task.model')
 const projectModel = require('../models/project.model')
 const mongoose = require('mongoose')
+const createError = require("../utils/createError")
 
-const createTask = async(projectId, tenantId, title, description, createdBy, assignedTo, dueDate)=>{
+const createTask = async( title, description, projectId, tenantId, createdBy, assignedTo, dueDate, status)=>{
         if (!mongoose.Types.ObjectId.isValid(projectId)){
-            throw new Error("Invalid project id")
+            throw createError("Email already exists", 409);
         }
 
         const project = await projectModel.exists({ 
@@ -13,31 +14,31 @@ const createTask = async(projectId, tenantId, title, description, createdBy, ass
         })
         
         if (!project){
-            throw new Error("Project Not Found")
+            throw createError("Project not found", 404);
         }
 
         if(!title){
-            throw new Error("Task title is required")
+            throw createError("Task title is required", 400);
         }
 
         const task = await taskModel.create({
-            projectId,
-            tenantId,
-            title,
-            description,
-            createdBy,
-            assignedTo,
-            dueDate
-
-        })
+          title,
+          description,
+          projectId,
+          tenantId,
+          createdBy,
+          assignedTo,
+          dueDate,
+          status
+        });
 
         return task
 }
 
 const getTasksByProject = async(projectId, tenantId) =>{
     if(!mongoose.Types.ObjectId.isValid(projectId)) {
-        throw new Error("Invalid project id")
-          }  
+        throw createError("Invalid project id", 400);
+     }  
         
     
     const project = await projectModel.exists({
@@ -46,13 +47,13 @@ const getTasksByProject = async(projectId, tenantId) =>{
     })
 
     if(!project){
-        throw new Error("Project not found")
+        throw createError("Project not found", 404);
     }
     
     const tasks = await taskModel.find({
         projectId,
         tenantId
-    }).populate("assignedTo", "name email")
+    }).populate("assignedTo", "username email")
     .sort({createdAt: -1})
          
     return tasks
@@ -61,16 +62,16 @@ const getTasksByProject = async(projectId, tenantId) =>{
 
 const getTaskById = async(taskId, tenantId)=>{
     if (!mongoose.Types.ObjectId.isValid(taskId)) {
-        throw new Error("Invalid task id")
+        throw createError("Invalid task id", 400);
     }
 
     const task = await taskModel.findOne({
         _id: taskId,
         tenantId,    
-    }).populate("createdBy", "name email").populate("assignedTo", "name email")
+    }).populate("createdBy", "username email").populate("assignedTo", "username email")
 
     if(!task){
-       throw new Error("Task not found")
+       throw createError("Task not found", 404);
     }
 
      return task
@@ -79,11 +80,11 @@ const getTaskById = async(taskId, tenantId)=>{
 const deleteTask = async(taskId, tenantId, role)=>{
 
     if (!mongoose.Types.ObjectId.isValid(taskId)) {
-       throw new Error("Invalid task id")
+       throw createError("Invalid task id", 400)
     }
 
     if(role !== 'admin' && role !== "owner"){
-        throw new Error("Not authorized to delete")
+        throw createError("Not authorized to delete", 403)
     }
 
     const task = await taskModel.findOneAndDelete({ 
@@ -92,7 +93,7 @@ const deleteTask = async(taskId, tenantId, role)=>{
      })
     
     if(!task){
-       throw new Error("Task not found")
+      throw createError("Task not found", 404);
     }
 
     return task
@@ -101,11 +102,11 @@ const deleteTask = async(taskId, tenantId, role)=>{
 
 const updateTask = async(taskId, tenantId, role, title, description, assignedTo, status, dueDate) =>{
     if(!mongoose.Types.ObjectId.isValid(taskId)){
-        throw new Error("Invalid task id")
+         throw createError("Invalid task id", 400);
     }
 
     if(role !== 'admin' && role !== "owner"){
-       throw new Error("Not authorized to update")
+       throw createError("Not authorized to update", 403)
     }
        
     const updateData = {}
@@ -121,7 +122,7 @@ const updateTask = async(taskId, tenantId, role, title, description, assignedTo,
     }, updateData ,{new: true})
     
     if(!task){
-       throw new Error("Task not found")
+       throw createError("Task not found", 404)
     }
 
     return task 

@@ -17,8 +17,7 @@ const taskSchema = new mongoose.Schema({
      },
     
     tenantId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Workspace",
+        type: String,
         required: true
     },
 

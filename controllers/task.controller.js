@@ -2,20 +2,24 @@ const taskService = require('../services/task.service')
 
 const createTask = async(req, res)=>{
     try{
-       const title = req.body.title?.trim()
-       const description = req.body.description?.trim()
-       const createdBy = req.body.createdBy
-       const assignedTo = req.body.assignedTo
-       const dueDate = req.body.dueDate
+        const { projectId } = req.params;
+        const title = req.body.title?.trim();
+        const description = req.body.description?.trim();
+        const createdBy = req.user.userId;
+        const tenantId = req.user.tenantId;
+        const assignedTo = req.body.assignedTo;
+        const dueDate = req.body.dueDate;
+        const status = req.body.status;
 
        const task = await taskService.createTask(
-          req.params.projectId,
-          req.user.tenantId,
           title,
           description,
+          projectId,
+          tenantId,
           createdBy,
           assignedTo,
-          dueDate 
+          dueDate,
+          status
        )
 
        return res.status(201).json({
@@ -25,7 +29,7 @@ const createTask = async(req, res)=>{
         })
 
    }catch(err){
-       return res.status(500).json({
+       return res.status(err.status, 500).json({
          success: false,
          message: err.message || "Failed to create task"
        })
@@ -44,7 +48,7 @@ const getTasksByProject = async(req, res)=>{
             tasks
         })
     }catch(err){
-        return res.status(500).json({
+        return res.status(err.status || 500).json({
             success: false,
             message:  err.message || "Failed to fetch task"
         })
@@ -62,7 +66,7 @@ const getTaskById = async(req, res)=>{
             task
         })
     }catch(err){
-        return res.status(500).json({
+        return res.status(err.status || 500).json({
             success: false,
             message:  err.message || "Failed to fetch task"
         })
@@ -85,7 +89,7 @@ const deleteTask = async(req, res)=>{
         })
 
   }catch(err){
-    return res.status(500).json({
+    return res.status(err.status || 500).json({
         success: false,
         message: err.message || "Failed to delete Task"
     })
@@ -117,7 +121,7 @@ const updateTask = async(req, res) =>{
             message: "Task Updated successfully"
         })
      }catch(err){
-        return res.status(500).json({
+        return res.status(err.status || 500).json({
             success: false,
             message: err.message || "Failed to update task"
         })
