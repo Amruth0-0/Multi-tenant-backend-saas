@@ -9,9 +9,9 @@ const inviteMemberValidator = [
     .withMessage("Invalid email format"),
 
   body("role")
-     .optional()
-    .isIn(["OWNER", "ADMIN", "MEMBER"])
-    .withMessage("Role must be OWNER, ADMIN, or MEMBER"),
+    .optional()
+    .isIn(["admin", "member"])
+    .withMessage("Role must be admin or member"),
 
   validateRequest,
 ];
