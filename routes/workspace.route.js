@@ -4,8 +4,9 @@ const router = express.Router();
 const { verifyToken } = require("../middleware/verifyToken");
 const { authRole } = require("../middleware/authRole");
 const { workspaceCreate } = require("../controllers/workspace.controller");
-const {  createInvite,  getInviteDetails,  acceptInvite, } = require("../controllers/invite.controller");
+const { createInvite, getInviteDetails, acceptInvite, } = require("../controllers/invite.controller");
 const { workspaceValidator } = require("../validators/workspace.validator");
+const { inviteMemberValidator } = require("../validators/member.validator")
 
 
 // Public route to validate invite token
@@ -18,9 +19,10 @@ router.use(verifyToken);
 router.post("/", workspaceValidator, workspaceCreate);
 
 // Create invite
-router.post("/invite", authRole("owner"), createInvite);
+router.post("/invite", authRole("owner"), inviteMemberValidator, createInvite);
 
 // Accept invite
 router.post("/accept-invite", acceptInvite);
+
 
 module.exports = router;

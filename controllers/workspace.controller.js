@@ -1,6 +1,7 @@
 const workspaceService = require("../services/workspace.service");
 const workspaceMemberModel = require("../models/workspaceMember.model");
 const mongoose = require("mongoose");
+const jwt = require("jsonwebtoken");
 
 const workspaceCreate = async (req, res) => {
   try {
@@ -20,22 +21,34 @@ const workspaceCreate = async (req, res) => {
       userId,
     });
 
+    const token = jwt.sign(
+      {
+        userId: userId,
+        tenantId: workspace.tenantId,
+        workspaceId: workspace._id,
+        role: "owner",
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" },
+    );
+
     return res.status(201).json({
       success: true,
       message: "Workspace created",
       workspace,
+      token,
     });
   } catch (err) {
     return res.status(err.status || 500).json({
       success: false,
-      message: err.message ||  "Workspace creation failed",
+      message: err.message || "Workspace creation failed",
     });
   }
 };
 
 const getWorkspaceMembers = async (req, res) => {
   try {
-    const { workspaceId } = req.params
+    const { workspaceId } = req.params;
     if (!mongoose.Types.ObjectId.isValid(workspaceId)) {
       return res.status(400).json({
         success: false,
@@ -76,7 +89,7 @@ const getWorkspaceMembers = async (req, res) => {
 
 const removeMember = async (req, res) => {
   try {
-    const {workspaceId, memberId} = req.params;
+    const { workspaceId, memberId } = req.params;
 
     if (!mongoose.Types.ObjectId.isValid(workspaceId)) {
       return res.status(400).json({
@@ -119,14 +132,7 @@ const removeMember = async (req, res) => {
     if (member.role === "owner") {
       return res.status(400).json({
         success: false,
-        message:  "Workspace owner cannot be removed",
-      });
-    }
-
-    if (req.user.role !== "admin" && req.user.role !== "owner") {
-      return res.status(403).json({
-        success: false,
-        message: "Not Authorized to delete",
+        message: "Workspace owner cannot be removed",
       });
     }
 
@@ -189,14 +195,6 @@ const updateMemberRole = async (req, res) => {
         message: "Owner cannot be Updated",
       });
     }
-
-    if (req.user.role !== "admin" && req.user.role !== "owner") {
-      return res.status(403).json({
-        success: false,
-        message: "Not Authorized to Update",
-      });
-    }
-
 
     if (!["admin", "member"].includes(role)) {
       return res.status(400).json({

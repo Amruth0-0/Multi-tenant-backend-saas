@@ -11,10 +11,18 @@ const createWorkspace = async ({ name, userId }) => {
     throw createError("UserId is required", 400); // changed
   }
 
-  const wkspace = await Workspace.create({
-    name: name.trim(),
-    ownerId: userId, 
-  });
+  let wkspace;
+  try {
+    wkspace = await Workspace.create({
+      name: name.trim(),
+      ownerId: userId, 
+    });
+  } catch (error) {
+    if (error.code === 11000) {
+      throw createError("You already have a workspace with this name", 400);
+    }
+    throw error;
+  }
 
   await WorkspaceMember.create({
     userId: userId, 
