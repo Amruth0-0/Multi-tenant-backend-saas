@@ -48,7 +48,7 @@ const handleAcceptInvite = async () => {
   const storedToken = localStorage.getItem("token");
 
   if (!storedToken) {
-    window.location.href = `/auth/login?inviteToken=${token}`;
+    window.location.href = `/login?inviteToken=${token}`;
     return;
   }
 
@@ -66,7 +66,23 @@ const handleAcceptInvite = async () => {
       return;
     }
 
-    alert(result.message || "Invite accepted successfully");
+    // Refresh workspaces by logging in again via selectWorkspace
+    // The invite data already has workspaceId — use it to switch context
+    const inviteWorkspaceId = result.data?.workspaceId;
+    if (inviteWorkspaceId) {
+      const switchRes = await callApi("/auth/workspace/select", "POST", {
+        workspaceId: inviteWorkspaceId,
+      });
+      if (switchRes?.token) {
+        localStorage.setItem("token", switchRes.token);
+        // Save workspace name if available
+        if (workspaceName?.textContent) {
+          localStorage.setItem("workspaceName", workspaceName.textContent);
+        }
+      }
+    }
+
+    alert(result.message || "Invite accepted successfully! Welcome to the workspace.");
     window.location.href = "/dashboard";
   } catch (error) {
     message.textContent = error.message || "Could not accept invite";

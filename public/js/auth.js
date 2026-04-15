@@ -43,12 +43,38 @@ if (loginForm) {
       const params = new URLSearchParams(window.location.search);
       const inviteToken = params.get("inviteToken");
 
+      const workspaces = data.workspaces || [];
+
+      // 🔥 CASE 1: Invite flow (keep as is)
       if (inviteToken) {
         window.location.href = `/invite/${inviteToken}`;
-      } else {
-        window.location.href = "/dashboard";
+        return;
       }
-      return;
+
+      // 🔥 CASE 2: No workspace
+      if (workspaces.length === 0) {
+        window.location.href = "/create-workspace";
+        return;
+      }
+
+      // 🔥 CASE 3: Has workspaces → AUTO SELECT the first one
+      if (workspaces.length > 0) {
+        const selectedWs = workspaces[0];
+        const res = await callApi("/auth/workspace/select", "POST", {
+          workspaceId: selectedWs.workspaceId,
+        });
+
+        if (res?.token) {
+          localStorage.setItem("token", res.token);
+        }
+        // Save workspace name so dashboard can display it
+        if (selectedWs.name) {
+          localStorage.setItem("workspaceName", selectedWs.name);
+        }
+
+        window.location.href = "/dashboard";
+        return;
+      }
     }
 
     if (errorBox) {
@@ -66,14 +92,11 @@ if (registerForm) {
     const name = document.getElementById("name").value.trim();
     const email = document.getElementById("email").value.trim();
     const password = document.getElementById("password").value;
-    const workspaceName = document.getElementById("workspaceName").value.trim();
 
-    
     const data = await callApi("/auth/register", "POST", {
-      name: name,
+      username: name,
       email: email,
       password: password,
-      workspaceName: workspaceName,
     });
 
     if (!data || data.success === false) {
@@ -83,8 +106,8 @@ if (registerForm) {
       return;
     }
 
-    alert(data.message || "Account created successfully");
-    window.location.href = "/login";
+    localStorage.setItem("token", data.token);
+    window.location.href = data.redirectTo || "/create-workspace";
   });
 }
 

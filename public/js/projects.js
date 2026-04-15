@@ -13,7 +13,14 @@ async function loadProjects() {
 
     container.innerHTML = "";
 
-    projects.forEach(function (project) {
+    const projectList = projects?.projects || [];
+
+    if (projectList.length === 0) {
+        container.innerHTML = "<p class='text-slate-400 italic'>No projects yet</p>";
+        return;
+    }
+
+    projectList.forEach(function (project) {
        const div = document.createElement("div");
 
         div.innerHTML = `
@@ -32,17 +39,24 @@ if(projectForm){
     projectForm.addEventListener("submit", async function(event){
         event.preventDefault()
 
+        const btn = document.getElementById("submitBtn");
         const name = document.getElementById("name").value;
         const description = document.getElementById("description").value;
+
+        if (btn) { btn.disabled = true; btn.textContent = "Creating..."; }
 
         const project = await callApi("/projects", "POST", {
           name: name,
           description: description
         });
 
-         if (project) {
-            alert("Project created");
+        if (project?.success && project?.project?._id) {
+            showToast("Project created!", "success");
+            setTimeout(() => { window.location.href = "/projects/" + project.project._id; }, 800);
+        } else if (project?.success) {
             location.reload();
+        } else {
+            if (btn) { btn.disabled = false; btn.textContent = "Create Project"; }
         }
     })
 }
