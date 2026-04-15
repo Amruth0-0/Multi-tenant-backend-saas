@@ -60,36 +60,27 @@
   <!-- STATS -->
   <div class="grid md:grid-cols-4 gap-6 mb-10">
 
-    <!-- Workspace -->
     <div class="bg-slate-800/60 border border-slate-700 rounded-2xl p-6">
       <p class="text-sm text-slate-400">Workspace</p>
-      <h2 class="text-xl font-semibold mt-2">
-        <%= workspace?.name || "My Workspace" %> 
-      </h2>
+      <h2 id="workspaceNameEl" class="text-xl font-semibold mt-2">Loading...</h2>
     </div>
 
     <!-- Projects -->
     <div class="bg-slate-800/60 border border-slate-700 rounded-2xl p-6">
       <p class="text-sm text-slate-400">Projects</p>
-      <h2 class="text-2xl font-bold mt-2">
-        <%= projectCount || 0 %>
-      </h2>
+      <h2 id="projectCountEl" class="text-2xl font-bold mt-2">—</h2>
     </div>
 
     <!-- Tasks -->
     <div class="bg-slate-800/60 border border-slate-700 rounded-2xl p-6">
       <p class="text-sm text-slate-400">Tasks</p>
-      <h2 class="text-2xl font-bold mt-2">
-        <%= taskCount || 0 %>
-      </h2>
+      <h2 id="taskCountEl" class="text-2xl font-bold mt-2">—</h2>
     </div>
 
     <!-- Members -->
     <div class="bg-slate-800/60 border border-slate-700 rounded-2xl p-6">
       <p class="text-sm text-slate-400">Members</p>
-      <h2 class="text-2xl font-bold mt-2">
-        <%= memberCount || 0 %>
-      </h2>
+      <h2 id="memberCountEl" class="text-2xl font-bold mt-2">—</h2>
     </div>
 
   </div>
@@ -129,32 +120,8 @@
 
       <h2 class="text-lg font-semibold mb-4">Recent Projects</h2>
 
-      <div class="space-y-3 text-sm">
-
-        <% if (projects?.length) { %>
-
-          <% projects.forEach(project => { %>
-
-            <div class="flex justify-between items-center">
-
-              <a href="/projects/<%= project._id %>" class="hover:underline">
-                <%= project.name %>
-              </a>
-
-              <span class="text-slate-400 text-xs">
-                <%= project.status %>
-              </span>
-
-            </div>
-
-          <% }) %>
-
-        <% } else { %>
-
-          <p class="text-slate-400 italic">No projects yet</p>
-
-        <% } %>
-
+      <div id="recentProjectList" class="space-y-3 text-sm">
+        <p class="text-slate-400 italic">Loading...</p>
       </div>
     </div>
 
@@ -164,51 +131,44 @@
 
       <h2 class="text-lg font-semibold mb-4">Workspace Members</h2>
 
-      <div class="space-y-3 text-sm">
-
-        <% if (members?.length) { %>
-
-          <% members.forEach(member => { %>
-
-            <div class="flex justify-between items-center">
-              <span><%= member.name %></span>
-              <span class="text-xs text-slate-400"><%= member.role %></span>
-            </div>
-
-          <% }) %>
-
-        <% } else { %>
-
-          <p class="text-slate-400 italic">No members yet</p>
-
-        <% } %>
-
+      <div id="memberListWidget" class="space-y-3 text-sm">
+        <p class="text-slate-400 italic">Loading...</p>
       </div>
     </div>
 
   </div>
 
 
-  <!-- ACTIVITY -->
+  <!-- GETTING STARTED -->
   <div class="bg-slate-800/60 border border-slate-700 rounded-2xl p-6">
+    <h2 class="text-lg font-semibold mb-4">⚡ Getting Started</h2>
+    <div class="space-y-3 text-sm">
 
-    <h2 class="text-lg font-semibold mb-4">Recent Activity</h2>
-
-    <div class="space-y-4 text-sm">
-
-      <div class="flex justify-between">
-        <span>New project <strong>Project Alpha</strong> created</span>
-        <span class="text-slate-500">2h ago</span>
+      <div class="flex items-center gap-3 p-3 rounded-xl bg-slate-900/60 hover:bg-slate-900 transition cursor-pointer" onclick="window.location.href='/projects/create'">
+        <span class="text-2xl">📁</span>
+        <div>
+          <div class="font-medium">Create your first project</div>
+          <div class="text-slate-400 text-xs">Organise your work into projects and track progress</div>
+        </div>
+        <span class="ml-auto text-blue-400 text-xs">→</span>
       </div>
 
-      <div class="flex justify-between">
-        <span>Task <strong>Setup CI/CD</strong> completed</span>
-        <span class="text-slate-500">5h ago</span>
+      <div class="flex items-center gap-3 p-3 rounded-xl bg-slate-900/60 hover:bg-slate-900 transition cursor-pointer" onclick="window.location.href='/workspace/members/invite'">
+        <span class="text-2xl">👥</span>
+        <div>
+          <div class="font-medium">Invite your team</div>
+          <div class="text-slate-400 text-xs">Bring collaborators into your workspace</div>
+        </div>
+        <span class="ml-auto text-blue-400 text-xs">→</span>
       </div>
 
-      <div class="flex justify-between">
-        <span><strong>John Smith</strong> joined workspace</span>
-        <span class="text-slate-500">1d ago</span>
+      <div class="flex items-center gap-3 p-3 rounded-xl bg-slate-900/60 hover:bg-slate-900 transition cursor-pointer" onclick="window.location.href='/projects'">
+        <span class="text-2xl">✅</span>
+        <div>
+          <div class="font-medium">Manage tasks</div>
+          <div class="text-slate-400 text-xs">Break projects into actionable tasks with deadlines</div>
+        </div>
+        <span class="ml-auto text-blue-400 text-xs">→</span>
       </div>
 
     </div>
@@ -222,8 +182,9 @@
   © <%= new Date().getFullYear() %> TenantFlow. All Rights Reserved.
 </footer>
 
-<script src="/js/api.js"></script>
+<script src="/js/api.js?v=2"></script>
 <script src="/js/auth.js"></script>
+<script src="/js/dashboard.js"></script>
 
 </body>
 </html>

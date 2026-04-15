@@ -32,7 +32,7 @@
       >
         <h1 class="text-3xl font-bold text-center mb-6">Create Project</h1>
 
-        <form action="/projects/create" method="POST" class="space-y-6">
+        <form id="projectForm" class="space-y-6">
           <div>
             <label class="text-sm text-slate-300 block mb-2"
               >Project Name</label
@@ -40,6 +40,7 @@
 
             <input
               type="text"
+              id="name"
               name="name"
               required
               class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm"
@@ -50,6 +51,7 @@
             <label class="text-sm text-slate-300 block mb-2">Description</label>
 
             <textarea
+              id="description"
               name="description"
               rows="4"
               class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm"
@@ -58,6 +60,7 @@
 
           <button
             type="submit"
+            id="submitBtn"
             class="w-full bg-blue-600 hover:bg-blue-700 py-3 rounded-xl text-sm font-medium"
           >
             Create Project
@@ -66,4 +69,8 @@
       </div>
     </main>
   </body>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/projects.js"></script>
 </html>

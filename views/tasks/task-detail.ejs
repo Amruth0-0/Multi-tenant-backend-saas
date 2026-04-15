@@ -49,8 +49,8 @@
 
 
     <form id="taskDetailForm" class="space-y-6">
-      <input type="hidden" id="taskId" value="<%= task?._id %>" />
-      <input type="hidden" id="projectId" value="<%= task?.projectId %>" />
+      <input type="hidden" id="taskId" value="" />
+      <input type="hidden" id="projectId" value="" />
 
 
       <!-- TITLE -->
@@ -87,8 +87,8 @@
           class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm"
         >
           <option value="todo" <%= task?.status === "todo" ? "selected" : "" %>>Todo</option>
-          <option value="progress" <%= task?.status === "progress" ? "selected" : "" %>>In Progress</option>
-          <option value="done" <%= task?.status === "done" ? "selected" : "" %>>Done</option>
+          <option value="in_progress" <%= task?.status === "in_progress" ? "selected" : "" %>>In Progress</option>
+          <option value="completed" <%= task?.status === "completed" ? "selected" : "" %>>Completed</option>
         </select>
       </div>
 
@@ -174,6 +174,9 @@
 </footer>
 
 
+<script>
+  window.TASK_ID = "<%= locals.taskId || '' %>";
+</script>
 <script src="/js/api.js"></script>
 <script src="/js/auth.js"></script>
 <script src="/js/tasks.js"></script>

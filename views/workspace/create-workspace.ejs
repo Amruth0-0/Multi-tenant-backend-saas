@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Create Your Workspace — TenantFlow</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              navy: {
+                900: "#0f172a",
+                800: "#1e293b",
+                700: "#293548",
+                600: "#374357",
+              },
+              brand: "#3b82f6",
+            },
+          },
+        },
+      };
+    </script>
+  </head>
+  <body
+    class="bg-navy-900 text-white min-h-screen flex items-center justify-center px-4"
+  >
+    <div class="w-full max-w-md">
+      <!-- Logo -->
+      <div class="flex flex-col items-center mb-8">
+        <div
+          class="flex h-12 w-12 items-center justify-center rounded-xl bg-brand text-white mb-4"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-6 w-6"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path
+              d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"
+            />
+            <path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65" />
+            <path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65" />
+          </svg>
+        </div>
+        <span
+          class="text-sm font-semibold text-gray-400 tracking-wide uppercase"
+          >TenantFlow</span
+        >
+      </div>
+
+      <!-- Card -->
+      <div
+        class="bg-navy-800 border border-navy-700 rounded-2xl shadow-2xl shadow-black/30 p-8"
+      >
+        <h1 class="text-2xl font-bold text-center mb-2">
+          Create Your Workspace
+        </h1>
+        <p class="text-gray-400 text-sm text-center mb-8">
+          Set up your team's workspace to get started with projects, tasks, and
+          collaboration.
+        </p>
+
+        <form id="createForm" class="space-y-5" novalidate>
+          <!-- Workspace Name -->
+          <div>
+            <label
+              for="workspaceName"
+              class="block text-sm font-medium text-gray-300 mb-1.5"
+              >Workspace Name</label
+            >
+            <input
+              type="text"
+              id="workspaceName"
+              name="name"
+              placeholder="My Company"
+              required
+              maxlength="100"
+              class="w-full px-4 py-2.5 bg-navy-900 border border-navy-700 rounded-lg text-white placeholder-gray-500 text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all"
+            />
+            <p id="errorMsg" class="mt-1.5 text-sm text-red-400 hidden"></p>
+          </div>
+
+          <!-- Submit -->
+          <button
+            type="submit"
+            id="submitBtn"
+            disabled
+            class="w-full py-2.5 rounded-lg bg-brand text-white text-sm font-semibold hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-brand focus:ring-offset-2 focus:ring-offset-navy-800 transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          >
+            <span id="btnText">Create Workspace</span>
+            <svg
+              id="spinner"
+              class="hidden animate-spin h-4 w-4"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                class="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                stroke-width="4"
+              />
+              <path
+                class="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+              />
+            </svg>
+          </button>
+        </form>
+      </div>
+
+      <p class="text-center text-gray-500 text-xs mt-6">
+        &copy; 2026 TenantFlow. All rights reserved.
+      </p>
+    </div>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/workspace.js"></script>
+  </body>
+</html>

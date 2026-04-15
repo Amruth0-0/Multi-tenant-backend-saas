@@ -38,16 +38,13 @@
 <div class="flex justify-between items-center mb-8">
 
   <div>
-    <h1 class="text-3xl font-bold">
-      <%= project?.name || "Project" %>
+    <h1 id="projectNameEl" class="text-3xl font-bold">
+      <%= locals.projectId ? "Loading..." : "Project" %>
     </h1>
-
-    <p class="text-slate-400 text-sm mt-1">
-      <%= project?.description || "" %>
-    </p>
+    <p id="projectDescEl" class="text-slate-400 text-sm mt-1"></p>
   </div>
 
-  <a href="/tasks/create"
+  <a href="/tasks/create?projectId=<%= locals.projectId || '' %>"
     class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg text-sm">
     + Create Task
   </a>
@@ -69,68 +66,22 @@
 </div>
 
 
-<div id="listView">
-
-  <div class="bg-slate-800/60 border border-slate-700 rounded-2xl overflow-hidden">
-
-    <table class="w-full text-sm">
-
-      <thead class="border-b border-slate-700 text-slate-400">
-        <tr>
-          <th class="text-left p-4">Task</th>
-          <th>Status</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-
-      <tbody>
-
-        <% if (tasks?.length) { %>
-
-          <% tasks.forEach(task => { %>
-
-            <tr class="border-b border-slate-800">
-
-              <td class="p-4">
-                <div class="font-medium"><%= task.title %></div>
-                <div class="text-slate-400 text-xs">
-                  <%= task.description %>
-                </div>
-              </td>
-
-              <td class="text-center">
-                <span class="text-xs bg-slate-700 px-2 py-1 rounded">
-                  <%= task.status %>
-                </span>
-              </td>
-
-              <td class="text-center">
-                <a href="/tasks/<%= task._id %>"
-                  class="text-blue-400 hover:text-blue-300 text-xs">
-                  View
-                </a>
-              </td>
-
-            </tr>
-
-          <% }) %>
-
-        <% } else { %>
-
+  <div id="taskListView">
+    <div class="bg-slate-800/60 border border-slate-700 rounded-2xl overflow-hidden">
+      <table class="w-full text-sm">
+        <thead class="border-b border-slate-700 text-slate-400">
           <tr>
-            <td colspan="3" class="text-center py-10 text-slate-400">
-              No tasks yet
-            </td>
+            <th class="text-left p-4">Task</th>
+            <th>Status</th>
+            <th>Action</th>
           </tr>
-
-        <% } %>
-
-      </tbody>
-
-    </table>
-
+        </thead>
+        <tbody id="taskList">
+          <tr><td colspan="3" class="text-center py-10 text-slate-400">Loading tasks...</td></tr>
+        </tbody>
+      </table>
+    </div>
   </div>
-</div>
 
 
 
@@ -166,7 +117,7 @@
 
       <div class="space-y-3">
 
-        <% safeTasks.filter(t => t.status === "progress").forEach(task => { %>
+        <% safeTasks.filter(t => t.status === "in_progress").forEach(task => { %>
 
           <div class="bg-slate-900 border border-slate-700 rounded-xl p-4">
             <div class="text-sm font-medium"><%= task.title %></div>
@@ -185,7 +136,7 @@
 
       <div class="space-y-3">
 
-        <% safeTasks.filter(t => t.status === "done").forEach(task => { %>
+        <% safeTasks.filter(t => t.status === "completed").forEach(task => { %>
 
           <div class="bg-slate-900 border border-slate-700 rounded-xl p-4">
             <div class="text-sm font-medium"><%= task.title %></div>
@@ -208,6 +159,9 @@
 © <%= new Date().getFullYear() %> TenantFlow
 </footer>
 
+<script>
+  window.PROJECT_ID = "<%= locals.projectId || '' %>";
+</script>
 <script src="/js/api.js"></script>
 <script src="/js/auth.js"></script>
 <script src="/js/tasks.js"></script>

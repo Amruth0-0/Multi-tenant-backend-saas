@@ -26,7 +26,7 @@
 <a href="/dashboard">Dashboard</a>
 <a href="/projects">Projects</a>
 <a href="/workspace/members" class="text-white">Members</a>
-<a href="/logout">Logout</a>
+<button id="logoutBtn" class="hover:text-white transition">Logout</button>
 </div>
 
 </div>
@@ -75,63 +75,10 @@ class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg text-sm"
 </thead>
 
 
-<tbody>
-
-<% if(members && members.length){ %>
-
-<% members.forEach(member => { %>
-
-<tr class="border-b border-slate-800">
-
-<td class="p-4 flex items-center gap-3">
-
-<img
-src="https://ui-avatars.com/api/?name=<%= member.name %>"
-class="w-8 h-8 rounded-full"
-/>
-
-<div>
-<div class="font-medium"><%= member.name %></div>
-<div class="text-xs text-slate-400">
-<%= member.email %>
-</div>
-</div>
-
-</td>
-
-<td class="text-center">
-
-<span class="text-xs bg-slate-700 px-2 py-1 rounded">
-<%= member.role %>
-</span>
-
-</td>
-
-<td class="text-center">
-
-<a
-href="/workspace/members/remove/<%= member._id %>"
-class="text-red-400 hover:text-red-300 text-xs"
->
-Remove
-</a>
-
-</td>
-
-</tr>
-
-<% }) %>
-
-<% } else { %>
-
+<tbody id="memberTableBody">
 <tr>
-<td colspan="3" class="text-center py-10 text-slate-400">
-No members in this workspace
-</td>
+  <td colspan="3" class="text-center py-10 text-slate-400">Loading members...</td>
 </tr>
-
-<% } %>
-
 </tbody>
 
 </table>
@@ -148,5 +95,7 @@ No members in this workspace
 
 </footer>
 
+<script src="/js/api.js"></script>
+<script src="/js/auth.js"></script>
 </body>
 </html>
