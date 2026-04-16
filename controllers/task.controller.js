@@ -7,7 +7,7 @@ const createTask = async (req, res) => {
         const description = req.body.description?.trim();
         const createdBy = req.user.userId;
         const tenantId = req.user.tenantId;
-        const assignedTo = req.body.assignedTo;
+        const assignedTo = req.body.assignedTo === "" ? null : req.body.assignedTo;
         const dueDate = req.body.dueDate;
         const status = req.body.status;
 
@@ -100,7 +100,7 @@ const updateTask = async (req, res) => {
     try {
         const title = req.body.title?.trim()
         const description = req.body.description?.trim()
-        const assignedTo = req.body.assignedTo
+        const assignedTo = req.body.assignedTo === "" ? null : req.body.assignedTo;
         const status = req.body.status
         const dueDate = req.body.dueDate
 
@@ -128,4 +128,19 @@ const updateTask = async (req, res) => {
     }
 }
 
-module.exports = { createTask, getTasksByProject, getTaskById, deleteTask, updateTask }
+const getAllTasks = async (req, res) => {
+    try {
+        const tasks = await taskService.getAllTasks(req.user.tenantId);
+        return res.status(200).json({
+            success: true,
+            tasks
+        });
+    } catch (err) {
+        return res.status(err.status || 500).json({
+            success: false,
+            message: err.message || "Failed to fetch tasks"
+        });
+    }
+}
+
+module.exports = { createTask, getTasksByProject, getTaskById, deleteTask, updateTask, getAllTasks }

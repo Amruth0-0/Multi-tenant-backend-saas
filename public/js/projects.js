@@ -21,12 +21,33 @@ async function loadProjects() {
     }
 
     projectList.forEach(function (project) {
-       const div = document.createElement("div");
+        const div = document.createElement("div");
+        
+        div.className = "bg-slate-800/60 border border-slate-700 rounded-2xl p-6 hover:bg-slate-800 hover:border-blue-500 hover:shadow-lg transition flex flex-col justify-between cursor-pointer group";
+        div.onclick = () => window.location.href = `/projects/${project._id}`;
 
         div.innerHTML = `
-            <h3>${project.name}</h3>
-            <p>${project.description}</p>
-            <a href="/projects/${project._id}">Open</a>
+          <div>
+            <div class="flex justify-between items-center mb-4">
+              <h2 class="font-semibold text-xl group-hover:text-blue-400 transition">
+                ${project.name}
+              </h2>
+              <span class="text-xs px-2 py-1 bg-slate-700 text-slate-300 rounded-md">
+                ${project.status || "Active"}
+              </span>
+            </div>
+            <p class="text-slate-400 text-sm mb-6 line-clamp-3">
+              ${project.description || "No description provided."}
+            </p>
+          </div>
+          <div class="flex justify-between items-center text-sm pt-4 border-t border-slate-700/50">
+            <span class="text-blue-400 font-medium group-hover:text-blue-300 transition flex items-center gap-1">
+              Open Project <span class="text-lg leading-none">&rarr;</span>
+            </span>
+            <span class="text-slate-500 text-xs truncate max-w-[120px]">
+              ${project.createdBy?.username ? "By " + project.createdBy.username : ""}
+            </span>
+          </div>
         `;
 
         container.appendChild(div);

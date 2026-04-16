@@ -87,6 +87,32 @@ async function loadDashboard() {
       }
     }
   }
+
+  // 4. Task count + recent tasks
+  const taskRes = await callApi("/tasks", "GET");
+  const tasks = taskRes?.tasks || [];
+
+  const taskCountEl = document.getElementById("taskCountEl");
+  if (taskCountEl) taskCountEl.textContent = tasks.length;
+
+  const recentTaskList = document.getElementById("recentTaskList");
+  if (recentTaskList) {
+    if (tasks.length === 0) {
+      recentTaskList.innerHTML =
+        "<p class='text-slate-400 italic'>No tasks yet</p>";
+    } else {
+      recentTaskList.innerHTML = tasks
+        .slice(0, 5)
+        .map(
+          (t) => `
+        <div class="flex justify-between items-center">
+          <a href="/tasks/${t._id}" class="hover:underline truncate w-2/3">${t.title}</a>
+          <span class="text-slate-400 text-xs">${t.status || "todo"}</span>
+        </div>`
+        )
+        .join("");
+    }
+  }
 }
 
 loadDashboard();

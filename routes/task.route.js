@@ -2,12 +2,15 @@ const express = require("express")
 const { verifyToken } = require("../middleware/verifyToken")
 const { authRole } = require("../middleware/authRole")
 const { createTask, getTasksByProject, getTaskById, updateTask,
-     deleteTask } = require("../controllers/task.controller")
+     deleteTask, getAllTasks } = require("../controllers/task.controller")
 const { taskCreateValidator, taskUpdateValidator } = require("../validators/task.validator")
 
 const router = express.Router()
 
 router.use(verifyToken)
+
+//Get All Tasks
+router.get("/", getAllTasks)
 
 //Create Task
 router.post("/:projectId", taskCreateValidator, createTask)

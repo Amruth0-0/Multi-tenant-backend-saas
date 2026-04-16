@@ -112,7 +112,7 @@ const updateTask = async (taskId, tenantId, role, title, description, assignedTo
     const updateData = {}
     if (title) updateData.title = title.trim()
     if (description) updateData.description = description.trim()
-    if (assignedTo) updateData.assignedTo = assignedTo
+    if (assignedTo !== undefined) updateData.assignedTo = assignedTo
     if (status) updateData.status = status
     if (dueDate) updateData.dueDate = dueDate
 
@@ -128,4 +128,12 @@ const updateTask = async (taskId, tenantId, role, title, description, assignedTo
     return task
 }
 
-module.exports = { createTask, getTasksByProject, getTaskById, deleteTask, updateTask }
+const getAllTasks = async (tenantId) => {
+    const tasks = await taskModel.find({ tenantId })
+        .populate("projectId", "name")
+        .populate("assignedTo", "username email")
+        .sort({ createdAt: -1 });
+    return tasks;
+}
+
+module.exports = { createTask, getTasksByProject, getTaskById, deleteTask, updateTask, getAllTasks }

@@ -17,8 +17,19 @@ async function loadTasks(projectId) {
 
   if (taskList.length === 0) {
     container.innerHTML = "<tr><td colspan='3' class='text-center py-10 text-slate-400'>No tasks yet</td></tr>";
+    if(document.getElementById("boardTodo")) document.getElementById("boardTodo").innerHTML = "<p class='text-slate-400 italic text-xs'>No tasks yet</p>";
+    if(document.getElementById("boardProgress")) document.getElementById("boardProgress").innerHTML = "<p class='text-slate-400 italic text-xs'>No tasks yet</p>";
+    if(document.getElementById("boardDone")) document.getElementById("boardDone").innerHTML = "<p class='text-slate-400 italic text-xs'>No tasks yet</p>";
     return;
   }
+
+  const boardTodo = document.getElementById("boardTodo");
+  const boardProgress = document.getElementById("boardProgress");
+  const boardDone = document.getElementById("boardDone");
+
+  if(boardTodo) boardTodo.innerHTML = "";
+  if(boardProgress) boardProgress.innerHTML = "";
+  if(boardDone) boardDone.innerHTML = "";
 
   taskList.forEach(function (task) {
     const row = document.createElement("tr");
@@ -36,6 +47,21 @@ async function loadTasks(projectId) {
       </td>
     `;
     container.appendChild(row);
+
+    const cardHtml = `
+      <div class="bg-slate-900 border border-slate-700 rounded-xl p-4 cursor-pointer hover:border-slate-500 transition" onclick="window.location.href='/tasks/${task._id}'">
+        <div class="text-sm font-medium">${task.title}</div>
+        <div class="text-xs text-slate-400 mt-1 line-clamp-2">${task.description || ""}</div>
+      </div>
+    `;
+
+    if (task.status === "todo" && boardTodo) {
+      boardTodo.insertAdjacentHTML("beforeend", cardHtml);
+    } else if (task.status === "in_progress" && boardProgress) {
+      boardProgress.insertAdjacentHTML("beforeend", cardHtml);
+    } else if (task.status === "completed" && boardDone) {
+      boardDone.insertAdjacentHTML("beforeend", cardHtml);
+    }
   });
 }
 
@@ -76,10 +102,10 @@ if(taskForm){
 const listBtn = document.getElementById("listBtn");
 const boardBtn = document.getElementById("boardBtn");
 
-const listView = document.getElementById("listView");
+const listView = document.getElementById("taskListView");
 const boardView = document.getElementById("boardView");
 
-if (listBtn && boardBtn) {
+if (listBtn && boardBtn && listView && boardView) {
   listBtn.addEventListener("click", function () {
     listView.classList.remove("hidden");
     boardView.classList.add("hidden");
