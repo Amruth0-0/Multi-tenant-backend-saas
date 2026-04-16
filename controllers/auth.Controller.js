@@ -63,10 +63,10 @@ const selectWorkspace = async (req, res) => {
     }
 
     const token = jwt.sign({
-      userId,
+      userId: userId.toString(),
       tenantId: membership.workspaceId.tenantId,
       role: membership.role,
-      workspaceId: membership.workspaceId._id
+      workspaceId: membership.workspaceId._id.toString()
     }, process.env.JWT_SECRET,
       { expiresIn: "1d" })
 
