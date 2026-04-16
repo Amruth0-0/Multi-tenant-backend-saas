@@ -6,6 +6,13 @@ const createInvite = async (req, res) => {
     const role = req.body.role || "member";
     const workspaceId = req.user.workspaceId;
 
+    console.log("CREATE INVITE REQ.USER:", req.user);
+    console.log("CREATE INVITE WORKSPACE ID:", workspaceId);
+
+    if (!workspaceId) {
+      throw new Error(`workspaceId is missing from req.user! Keys: ${Object.keys(req.user)}`);
+    }
+
     const invite = await inviteService.createInvite({
       email,
       workspaceId: workspaceId,

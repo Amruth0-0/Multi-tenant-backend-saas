@@ -22,7 +22,7 @@ const authSignin = async({email, password})=>{
     const workspaces = memberships
       .filter((member) => member && member.workspaceId)
       .map((member) => ({
-        workspaceId: member.workspaceId._id,
+        workspaceId: member.workspaceId._id.toString(),
         tenantId: member.workspaceId.tenantId,
         name: member.workspaceId.name,
         role: member.role,
@@ -32,7 +32,7 @@ const authSignin = async({email, password})=>{
 
      const token = jwt.sign(
        {
-         userId: found._id,
+         userId: found._id.toString(),
          workspaceId: activeWorkspace ? activeWorkspace.workspaceId : null,
          tenantId: activeWorkspace ? activeWorkspace.tenantId : null,
          role: activeWorkspace ? activeWorkspace.role : null,

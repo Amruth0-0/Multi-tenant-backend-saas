@@ -49,8 +49,26 @@ async function callApi(url, method, data) {
   });
 
   const result = await response.json();
+  
   if (!response.ok) {
-    showToast(result.message || "Something went wrong", "error");
+    // Sanitize raw backend database/validation leak messages
+    let msg = result.message || "Something went wrong";
+    const lower = msg.toLowerCase();
+    
+    if (
+      lower.includes("validation failed") || 
+      lower.includes("cast to") || 
+      lower.includes("path ") ||
+      lower.includes("bson") ||
+      lower.includes("e11000") ||
+      lower.includes("duplicate key") ||
+      lower.includes("is required")
+    ) {
+      msg = "An unexpected error occurred. Please check your inputs or try again.";
+      result.message = msg; // Update it so any caller catching this sees the safe message
+    }
+
+    showToast(msg, "error");
   }
 
   return result;

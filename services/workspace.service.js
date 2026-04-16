@@ -31,6 +31,7 @@ const createWorkspace = async ({ name, userId }) => {
   });
 
   return {
+    _id: wkspace._id,
     tenantId: wkspace.tenantId, 
     name: wkspace.name,
   };

@@ -23,9 +23,9 @@ const workspaceCreate = async (req, res) => {
 
     const token = jwt.sign(
       {
-        userId: userId,
+        userId: userId.toString(),
         tenantId: workspace.tenantId,
-        workspaceId: workspace._id,
+        workspaceId: workspace._id.toString(),
         role: "owner",
       },
       process.env.JWT_SECRET,
