@@ -1,80 +1,41 @@
 const express = require("express");
 const router = express.Router();
 
-//Home Page
-router.get("/", (req, res) => {
-  res.render("index");
-});
+const { requireAuthUI }          = require("../middleware/requireAuthUI");
+const { redirectIfAuthenticated } = require("../middleware/redirectIfAuthenticated");
+const {
+  renderHome,
+  renderLogin,
+  renderRegister,
+  renderAcceptInvite,
+  renderDashboard,
+  renderCreateWorkspace,
+  renderMembers,
+  renderProjects,
+  renderCreateProject,
+  renderProjectView,
+  renderCreateTask,
+  renderTaskDetail,
+} = require("../controllers/ui.controller");
 
-//Login
-router.get("/login", (req, res) => {
-  res.render("auth/login");
-});
+// ─── Public Routes ────────────────────────────────────────────────────────────
+router.get("/",              renderHome);
+router.get("/login",         redirectIfAuthenticated, renderLogin);
+router.get("/register",      redirectIfAuthenticated, renderRegister);
+router.get("/invite/:token", renderAcceptInvite);
 
-//Register
-router.get("/register", (req, res) => {
-  res.render("auth/register");
-});
+// ─── Protected Routes (require valid session cookie) ──────────────────────────
+router.use(requireAuthUI);
 
-//Dashboard
-router.get("/dashboard", (req, res) => {
-  res.render("dashboard/dashboard");
-});
+router.get("/dashboard",          renderDashboard);
+router.get("/create-workspace",   renderCreateWorkspace);
+router.get("/workspace/members",  renderMembers);
 
-//Create Workspace
-router.get("/create-workspace", (req, res) => {
-  res.render("workspace/create-workspace");
-});
+router.get("/projects",           renderProjects);
+router.get("/projects/create",    renderCreateProject);
+router.get("/projects/:projectId", renderProjectView);
 
-//Invite page
-router.get("/invite/:token", (req, res) => {
-  res.render("workspace/accept-invite", {
-    token: req.params.token,
-  });
-});
-
-//Projects List
-router.get("/projects", (req, res) => {
-  res.render("projects/projects", { projects: [] });
-});
-
-//Create Project Page
-router.get("/projects/create", (req, res) => {
-  res.render("projects/create-project");
-});
-
-//Single Project View  
-router.get("/projects/:projectId", (req, res) => {
-  res.render("projects/project-view", {
-    project: null,
-    tasks: [],
-    projectId: req.params.projectId
-  });
-});
-
-//Create Task Page
-router.get("/tasks/create", (req, res) => {
-  const projectId = req.query.projectId || "";
-  res.render("tasks/create-task", { projectId, members: [] });
-});
-
-//Task Detail Page
-router.get("/tasks/:taskId", (req, res) => {
-  res.render("tasks/task-detail", {
-    task: null,
-    members: [],
-    taskId: req.params.taskId
-  });
-});
-
-//Workspace Members Page
-router.get("/workspace/members", (req, res) => {
-  res.render("workspace/members", { members: [] });
-});
-
-//Invite Member Page
-router.get("/workspace/members/invite", (req, res) => {
-  res.render("workspace/invite-member");
-});
+router.get("/tasks/create",       renderCreateTask);
+router.get("/tasks/:taskId",      renderTaskDetail);
 
 module.exports = router;
