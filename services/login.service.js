@@ -45,6 +45,7 @@ const authSignin = async({email, password})=>{
      return {
           token,
           userId: found._id,
+          username: found.username,
           workspaces
      }
 }

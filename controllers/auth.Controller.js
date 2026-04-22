@@ -11,9 +11,15 @@ const authRegister = async (req, res) => {
       email: req.body.email,
       password: req.body.password
     })
+
+    res.cookie("token", token, {
+      httpOnly: true, sameSite: "strict", secure: process.env.NODE_ENV === 'production'
+    })
+
     res.status(201).json({
       success: true,
       token,
+      username: req.body.username,
       redirectTo: "/create-workspace"
     })
   } catch (err) {
@@ -30,10 +36,16 @@ const login = async (req, res) => {
       email: req.body.email,
       password: req.body.password
     })
+
+    res.cookie("token", result.token, {
+      httpOnly: true, sameSite: "strict", secure: process.env.NODE_ENV === 'production'
+    })
+
     res.status(200).json({
       success: true,
       token: result.token,
       userId: result.userId,
+      username: result.username,
       workspaces: result.workspaces,
       redirectTo: result.workspaces.length > 0 ? "/dashboard" : "/create-workspace",
     });
@@ -71,7 +83,7 @@ const selectWorkspace = async (req, res) => {
       { expiresIn: "1d" })
 
     res.cookie("token", token, {
-      httpOnly: true, sameSite: "strict", secure: true
+      httpOnly: true, sameSite: "strict", secure: process.env.NODE_ENV === 'production'
     })
 
     res.status(200).json({

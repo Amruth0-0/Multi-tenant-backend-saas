@@ -14,109 +14,141 @@ if (togglePassword && passwordField) {
   });
 }
 
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+function showError(msg) {
+  // Show in errorBox if present, toast already fires from callApi
+  if (errorBox) {
+    errorBox.textContent = msg || "Something went wrong. Please try again.";
+    errorBox.classList.remove("hidden");
+  }
+}
+
+function hideError() {
+  if (errorBox) errorBox.classList.add("hidden");
+}
+
+// ─── Login ────────────────────────────────────────────────────────────────────
 const loginForm = document.getElementById("loginForm");
 
 if (loginForm) {
   loginForm.addEventListener("submit", async function (event) {
     event.preventDefault();
+    hideError();
 
-    const email = document.getElementById("email").value.trim();
+    const email    = document.getElementById("email").value.trim();
     const password = document.getElementById("password").value;
+    const btn      = document.getElementById("loginBtn") || loginForm.querySelector("button[type=submit]");
 
-    const data = await callApi("/auth/login", "POST", {
-      email: email,
-      password: password,
-    });
+    if (btn) { btn.disabled = true; btn.textContent = "Signing in…"; }
 
-    if (!data || data.success === false) {
-      if (errorBox) {
-        errorBox.classList.remove("hidden");
+    try {
+      const data = await callApi("/auth/login", "POST", { email, password });
+
+      if (!data || data.success === false) {
+        showError(data?.message || "Invalid email or password.");
+        return;
       }
-      return;
-    }
 
-    const token = data.token || data.data?.token;
+      const token = data.token || data.data?.token;
+      if (!token) {
+        showError("Login succeeded but no session was returned. Please try again.");
+        return;
+      }
 
-    if (token) {
       localStorage.setItem("token", token);
+      if (data.username) localStorage.setItem("username", data.username);
 
-      const params = new URLSearchParams(window.location.search);
+      const params      = new URLSearchParams(window.location.search);
       const inviteToken = params.get("inviteToken");
+      const workspaces  = data.workspaces || [];
 
-      const workspaces = data.workspaces || [];
-
-      // 🔥 CASE 1: Invite flow (keep as is)
+      // CASE 1: Invite flow
       if (inviteToken) {
         window.location.href = `/invite/${inviteToken}`;
         return;
       }
 
-      // 🔥 CASE 2: No workspace
+      // CASE 2: No workspace yet
       if (workspaces.length === 0) {
         window.location.href = "/create-workspace";
         return;
       }
 
-      // 🔥 CASE 3: Has workspaces → AUTO SELECT the first one
-      if (workspaces.length > 0) {
-        const selectedWs = workspaces[0];
-        const res = await callApi("/auth/workspace/select", "POST", {
-          workspaceId: selectedWs.workspaceId,
-        });
+      // CASE 3: Has workspaces → auto-select the first
+      const selectedWs = workspaces[0];
+      const res = await callApi("/auth/workspace/select", "POST", {
+        workspaceId: selectedWs.workspaceId,
+      });
 
-        if (res?.token) {
-          localStorage.setItem("token", res.token);
-        }
-        // Save workspace name so dashboard can display it
-        if (selectedWs.name) {
-          localStorage.setItem("workspaceName", selectedWs.name);
-        }
-
-        window.location.href = "/dashboard";
+      // If select fails, don't redirect to a broken dashboard
+      if (!res || res.success === false) {
+        showError("Could not activate your workspace. Please try again.");
         return;
       }
-    }
 
-    if (errorBox) {
-      errorBox.classList.remove("hidden");
+      if (res.token) localStorage.setItem("token", res.token);
+      if (selectedWs.name) localStorage.setItem("workspaceName", selectedWs.name);
+
+      window.location.href = "/dashboard";
+
+    } catch (err) {
+      // Handles network failures / server down
+      showError("Network error. Please check your connection and try again.");
+    } finally {
+      if (btn) { btn.disabled = false; btn.textContent = "Sign In"; }
     }
   });
 }
 
+// ─── Register ─────────────────────────────────────────────────────────────────
 const registerForm = document.getElementById("registerForm");
 
 if (registerForm) {
   registerForm.addEventListener("submit", async function (event) {
     event.preventDefault();
+    hideError();
 
-    const name = document.getElementById("name").value.trim();
-    const email = document.getElementById("email").value.trim();
+    const name     = document.getElementById("name").value.trim();
+    const email    = document.getElementById("email").value.trim();
     const password = document.getElementById("password").value;
+    const btn      = document.getElementById("registerBtn") || registerForm.querySelector("button[type=submit]");
 
-    const data = await callApi("/auth/register", "POST", {
-      username: name,
-      email: email,
-      password: password,
-    });
+    if (btn) { btn.disabled = true; btn.textContent = "Creating account…"; }
 
-    if (!data || data.success === false) {
-      if (errorBox) {
-        errorBox.classList.remove("hidden");
+    try {
+      const data = await callApi("/auth/register", "POST", { username: name, email, password });
+
+      if (!data || data.success === false) {
+        showError(data?.message || "Registration failed. Please try again.");
+        return;
       }
-      return;
-    }
 
-    localStorage.setItem("token", data.token);
-    window.location.href = data.redirectTo || "/create-workspace";
+      // Guard: ensure token actually exists before storing
+      if (!data.token) {
+        showError("Account created but session could not be established. Please log in.");
+        window.location.href = "/login";
+        return;
+      }
+
+      localStorage.setItem("token", data.token);
+      if (data.username) localStorage.setItem("username", data.username);
+      window.location.href = data.redirectTo || "/create-workspace";
+
+    } catch (err) {
+      showError("Network error. Please check your connection and try again.");
+    } finally {
+      if (btn) { btn.disabled = false; btn.textContent = "Create Account"; }
+    }
   });
 }
 
+// ─── Logout ───────────────────────────────────────────────────────────────────
 const logoutBtn = document.getElementById("logoutBtn");
 
 if (logoutBtn) {
-  logoutBtn.addEventListener("click", function () {
-    localStorage.removeItem("token");
-
+  logoutBtn.addEventListener("click", async function () {
+    await callApi("/auth/logout", "POST");
+    localStorage.clear();
     window.location.href = "/login";
   });
 }

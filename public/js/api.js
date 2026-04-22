@@ -34,7 +34,6 @@ function getToken() {
 }
 
 async function callApi(url, method, data) {
-  let response;
   const token = getToken();
 
   const headers = {
@@ -42,30 +41,45 @@ async function callApi(url, method, data) {
     ...(data && { "Content-Type": "application/json" }),
   };
 
-  response = await fetch("/api" + url, {
-    method: method,
-    headers,
-    ...(data && { body: JSON.stringify(data) }),
-  });
+  let response;
+  try {
+    response = await fetch("/api" + url, {
+      method,
+      headers,
+      credentials: "include",
+      ...(data && { body: JSON.stringify(data) }),
+    });
+  } catch {
+    // Network error — server unreachable or offline
+    showToast("Network error. Please check your connection.", "error");
+    return { success: false, message: "Network error" };
+  }
 
   const result = await response.json();
-  
+
   if (!response.ok) {
-    // Sanitize raw backend database/validation leak messages
+    // If express-validator returned a 422 with an errors array, surface the first message
+    if (response.status === 422 && Array.isArray(result.errors) && result.errors.length > 0) {
+      const firstMsg = result.errors[0].msg || "Validation error";
+      showToast(firstMsg, "error");
+      result.message = firstMsg;
+      return result;
+    }
+
     let msg = result.message || "Something went wrong";
     const lower = msg.toLowerCase();
-    
+
+    // Sanitize raw Mongoose/BSON internals — but NOT user-friendly validation messages
     if (
-      lower.includes("validation failed") || 
-      lower.includes("cast to") || 
-      lower.includes("path ") ||
+      lower.includes("validation failed") ||
+      lower.includes("cast to") ||
+      lower.startsWith("path ") ||
       lower.includes("bson") ||
       lower.includes("e11000") ||
-      lower.includes("duplicate key") ||
-      lower.includes("is required")
+      lower.includes("duplicate key")
     ) {
       msg = "An unexpected error occurred. Please check your inputs or try again.";
-      result.message = msg; // Update it so any caller catching this sees the safe message
+      result.message = msg;
     }
 
     showToast(msg, "error");
