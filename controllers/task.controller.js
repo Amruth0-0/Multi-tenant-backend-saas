@@ -143,4 +143,13 @@ const getAllTasks = async (req, res) => {
     }
 }
 
-module.exports = { createTask, getTasksByProject, getTaskById, deleteTask, updateTask, getAllTasks }
+const getMyTasks = async (req, res) => {
+    try {
+        const tasks = await taskService.getMyTasks(req.user.userId, req.user.tenantId);
+        return res.status(200).json({ success: true, tasks });
+    } catch (err) {
+        return res.status(err.status || 500).json({ success: false, message: err.message || "Failed to fetch your tasks" });
+    }
+}
+
+module.exports = { createTask, getTasksByProject, getTaskById, deleteTask, updateTask, getAllTasks, getMyTasks }

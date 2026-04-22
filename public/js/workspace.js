@@ -1,11 +1,3 @@
-// 🔐 Auth Guard (same pattern as other pages)
-(function () {
-  const token = localStorage.getItem("token");
-  if (!token) {
-    window.location.href = "/login";
-    return;
-  }
-})();
 
 const form = document.getElementById("createForm");
 const input = document.getElementById("workspaceName");

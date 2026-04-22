@@ -2,6 +2,8 @@ const taskModel = require('../models/task.model')
 const projectModel = require('../models/project.model')
 const mongoose = require('mongoose')
 const createError = require("../utils/createError")
+const Workspace = require('../models/workspace.model')
+const WorkspaceMember = require('../models/workspaceMember.model')
 
 const createTask = async (title, description, projectId, tenantId, createdBy, assignedTo, dueDate, status) => {
     if (!mongoose.Types.ObjectId.isValid(projectId)) {
@@ -19,6 +21,26 @@ const createTask = async (title, description, projectId, tenantId, createdBy, as
 
     if (!title) {
         throw createError("Task title is required", 400);
+    }
+
+    if (assignedTo) {
+        if (!mongoose.Types.ObjectId.isValid(assignedTo)) {
+            throw createError("Invalid assignedTo user id", 400);
+        }
+        
+        const workspace = await Workspace.findOne({ tenantId });
+        if (!workspace) {
+            throw createError("Workspace not found for tenant", 404);
+        }
+
+        const isMember = await WorkspaceMember.exists({
+            userId: assignedTo,
+            workspaceId: workspace._id
+        });
+
+        if (!isMember) {
+            throw createError("Assigned user is not a member of this workspace", 403);
+        }
     }
 
     const task = await taskModel.create({
@@ -112,7 +134,30 @@ const updateTask = async (taskId, tenantId, role, title, description, assignedTo
     const updateData = {}
     if (title) updateData.title = title.trim()
     if (description) updateData.description = description.trim()
-    if (assignedTo !== undefined) updateData.assignedTo = assignedTo
+    
+    if (assignedTo !== undefined) {
+        if (assignedTo !== null) {
+            if (!mongoose.Types.ObjectId.isValid(assignedTo)) {
+                throw createError("Invalid assignedTo user id", 400);
+            }
+            
+            const workspace = await Workspace.findOne({ tenantId });
+            if (!workspace) {
+                throw createError("Workspace not found for tenant", 404);
+            }
+
+            const isMember = await WorkspaceMember.exists({
+                userId: assignedTo,
+                workspaceId: workspace._id
+            });
+
+            if (!isMember) {
+                throw createError("Assigned user is not a member of this workspace", 403);
+            }
+        }
+        updateData.assignedTo = assignedTo
+    }
+    
     if (status) updateData.status = status
     if (dueDate) updateData.dueDate = dueDate
 
@@ -136,4 +181,15 @@ const getAllTasks = async (tenantId) => {
     return tasks;
 }
 
-module.exports = { createTask, getTasksByProject, getTaskById, deleteTask, updateTask, getAllTasks }
+const getMyTasks = async (userId, tenantId) => {
+    const tasks = await taskModel.find({
+        tenantId,
+        assignedTo: userId,
+        status: { $in: ['todo', 'in_progress'] }
+    })
+    .populate("projectId", "name")
+    .sort({ dueDate: 1, createdAt: -1 });
+    return tasks;
+}
+
+module.exports = { createTask, getTasksByProject, getTaskById, deleteTask, updateTask, getAllTasks, getMyTasks }

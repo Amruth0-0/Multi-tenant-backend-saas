@@ -2,181 +2,142 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-
   <title>Dashboard | TenantFlow</title>
-
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .progress-bar { transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
+    @keyframes fadeInUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+    .fade-in { animation: fadeInUp 0.4s ease forwards; }
+    .stat-card:hover { transform: translateY(-2px); transition: transform 0.2s ease; }
+  </style>
 </head>
-
-<body data-protected="true"
-  class="bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white min-h-screen flex flex-col"
->
+<body data-protected="true" class="bg-[#0a0f1e] text-white min-h-screen flex flex-col">
 
 <!-- NAVBAR -->
-<nav class="border-b border-slate-800 bg-slate-900/80 backdrop-blur-md">
-  <div class="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
-
-    <!-- Logo -->
+<nav class="border-b border-slate-800/60 bg-[#0d1424]/80 backdrop-blur-xl sticky top-0 z-50">
+  <div class="max-w-7xl mx-auto flex items-center justify-between px-6 py-3">
     <div class="flex items-center gap-3">
-      <img src="/assets/Logo.png" alt="TenantFlow Logo" class="h-8 w-auto object-contain" />
-      <span class="text-lg font-semibold tracking-wide">TenantFlow</span>
+      <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-violet-600 rounded-lg flex items-center justify-center text-sm font-bold">T</div>
+      <span class="text-base font-semibold tracking-tight">TenantFlow</span>
     </div>
-
-    <!-- Navigation -->
-    <div class="flex items-center gap-6 text-sm text-slate-400">
-
-      <a href="/dashboard" class="hover:text-white transition">Dashboard</a>
-
-      <a href="/projects" class="hover:text-white transition">Projects</a>
-
-      <a href="/workspace/members" class="hover:text-white transition">Members</a>
-
-      <button
-        id="logoutBtn"
-        class="hover:text-white transition text-sm text-slate-400"
-      >
-        Logout
-      </button>
-
+    <div class="flex items-center gap-1 text-sm text-slate-400">
+      <a href="/dashboard" class="px-3 py-1.5 rounded-md bg-slate-800 text-white text-xs font-medium">Dashboard</a>
+      <a href="/projects" class="px-3 py-1.5 rounded-md hover:bg-slate-800 hover:text-white transition text-xs">Projects</a>
+      <a href="/workspace/members" class="px-3 py-1.5 rounded-md hover:bg-slate-800 hover:text-white transition text-xs">Members</a>
+      <button id="logoutBtn" class="px-3 py-1.5 rounded-md hover:bg-red-900/40 hover:text-red-400 transition text-xs ml-2">Logout</button>
     </div>
   </div>
 </nav>
 
+<main class="flex-1 px-6 py-8 max-w-7xl mx-auto w-full">
 
-<!-- MAIN -->
-<main class="flex-1 px-6 py-10 max-w-7xl mx-auto w-full">
-
-  <!-- HEADER -->
-  <div class="mb-8">
-    <h1 class="text-3xl font-bold">Dashboard</h1>
-    <p class="text-slate-400 text-sm mt-1">
-      Welcome back! Here's your workspace overview.
-    </p>
+  <!-- GREETING HEADER -->
+  <div class="mb-8 fade-in">
+    <p class="text-slate-500 text-sm mb-1" id="greetingTime">Good morning</p>
+    <h1 class="text-3xl font-bold tracking-tight">
+      Welcome back, <span id="greetingName" class="bg-gradient-to-r from-blue-400 to-violet-400 bg-clip-text text-transparent">...</span>
+    </h1>
+    <p class="text-slate-400 text-sm mt-2" id="greetingSubtitle">Here's what's on your plate today.</p>
   </div>
 
-
-  <!-- STATS -->
-  <div class="grid md:grid-cols-4 gap-6 mb-10">
-
-    <div class="bg-slate-800/60 border border-slate-700 rounded-2xl p-6">
-      <p class="text-sm text-slate-400">Workspace</p>
-      <h2 id="workspaceNameEl" class="text-xl font-semibold mt-2">Loading...</h2>
+  <!-- STATS ROW -->
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+    <div class="stat-card bg-slate-800/40 border border-slate-700/50 rounded-2xl p-5 cursor-default">
+      <p class="text-xs text-slate-500 uppercase tracking-widest mb-2">Workspace</p>
+      <h2 id="workspaceNameEl" class="text-lg font-semibold truncate">Loading…</h2>
     </div>
-
-    <!-- Projects -->
-    <div class="bg-slate-800/60 border border-slate-700 rounded-2xl p-6">
-      <p class="text-sm text-slate-400">Projects</p>
-      <h2 id="projectCountEl" class="text-2xl font-bold mt-2">—</h2>
+    <div class="stat-card bg-slate-800/40 border border-slate-700/50 rounded-2xl p-5 cursor-default">
+      <p class="text-xs text-slate-500 uppercase tracking-widest mb-2">Projects</p>
+      <h2 id="projectCountEl" class="text-3xl font-bold text-blue-400">—</h2>
     </div>
-
-    <!-- Tasks -->
-    <div class="bg-slate-800/60 border border-slate-700 rounded-2xl p-6">
-      <p class="text-sm text-slate-400">Tasks</p>
-      <h2 id="taskCountEl" class="text-2xl font-bold mt-2">—</h2>
+    <div class="stat-card bg-slate-800/40 border border-slate-700/50 rounded-2xl p-5 cursor-default">
+      <p class="text-xs text-slate-500 uppercase tracking-widest mb-2">My Open Tasks</p>
+      <h2 id="myTaskCountEl" class="text-3xl font-bold text-violet-400">—</h2>
     </div>
-
-    <!-- Members -->
-    <div class="bg-slate-800/60 border border-slate-700 rounded-2xl p-6">
-      <p class="text-sm text-slate-400">Members</p>
-      <h2 id="memberCountEl" class="text-2xl font-bold mt-2">—</h2>
-    </div>
-
-  </div>
-
-
-  <!-- QUICK ACTIONS -->
-  <div class="bg-slate-800/60 border border-slate-700 rounded-2xl p-6 mb-10">
-
-    <h2 class="text-lg font-semibold mb-4">Quick Actions</h2>
-
-    <div class="flex flex-wrap gap-3">
-
-      <a href="/projects/create"
-        class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg text-sm transition">
-        + Create Project
-      </a>
-
-      <a href="/workspace/members/invite"
-        class="border border-slate-600 hover:border-slate-400 px-4 py-2 rounded-lg text-sm transition">
-        Invite Member
-      </a>
-
-      <a href="/projects"
-        class="border border-slate-600 hover:border-slate-400 px-4 py-2 rounded-lg text-sm transition">
-        View Projects
-      </a>
-
+    <div class="stat-card bg-slate-800/40 border border-slate-700/50 rounded-2xl p-5 cursor-default">
+      <p class="text-xs text-slate-500 uppercase tracking-widest mb-2">Members</p>
+      <h2 id="memberCountEl" class="text-3xl font-bold text-emerald-400">—</h2>
     </div>
   </div>
 
+  <!-- MAIN GRID -->
+  <div class="grid md:grid-cols-3 gap-6">
 
-  <!-- WIDGETS -->
-  <div class="grid md:grid-cols-3 gap-6 mb-10">
+    <!-- LEFT COL: My Day (takes 2 cols) -->
+    <div class="md:col-span-2 space-y-6">
 
-    <!-- RECENT PROJECTS -->
-    <div class="bg-slate-800/60 border border-slate-700 rounded-2xl p-6">
-
-      <h2 class="text-lg font-semibold mb-4">Recent Projects</h2>
-
-      <div id="recentProjectList" class="space-y-3 text-sm">
-        <p class="text-slate-400 italic">Loading...</p>
-      </div>
-    </div>
-
-    <!-- RECENT TASKS -->
-    <div class="bg-slate-800/60 border border-slate-700 rounded-2xl p-6">
-      <h2 class="text-lg font-semibold mb-4">Recent Tasks</h2>
-      <div id="recentTaskList" class="space-y-3 text-sm">
-        <p class="text-slate-400 italic">Loading...</p>
-      </div>
-    </div>
-
-
-    <!-- MEMBERS -->
-    <div class="bg-slate-800/60 border border-slate-700 rounded-2xl p-6">
-
-      <h2 class="text-lg font-semibold mb-4">Workspace Members</h2>
-
-      <div id="memberListWidget" class="space-y-3 text-sm">
-        <p class="text-slate-400 italic">Loading...</p>
-      </div>
-    </div>
-
-  </div>
-
-
-  <!-- GETTING STARTED -->
-  <div class="bg-slate-800/60 border border-slate-700 rounded-2xl p-6">
-    <h2 class="text-lg font-semibold mb-4">⚡ Getting Started</h2>
-    <div class="space-y-3 text-sm">
-
-      <div class="flex items-center gap-3 p-3 rounded-xl bg-slate-900/60 hover:bg-slate-900 transition cursor-pointer" onclick="window.location.href='/projects/create'">
-        <span class="text-2xl">📁</span>
-        <div>
-          <div class="font-medium">Create your first project</div>
-          <div class="text-slate-400 text-xs">Organise your work into projects and track progress</div>
+      <!-- MY TASKS -->
+      <div class="bg-slate-800/40 border border-slate-700/50 rounded-2xl p-6">
+        <div class="flex items-center justify-between mb-5">
+          <div>
+            <h2 class="text-base font-semibold">🎯 My Tasks</h2>
+            <p class="text-xs text-slate-500 mt-0.5">Tasks currently assigned to you</p>
+          </div>
+          <a href="/projects" class="text-xs text-blue-400 hover:text-blue-300 transition">View All →</a>
         </div>
-        <span class="ml-auto text-blue-400 text-xs">→</span>
+        <div id="myTaskList" class="space-y-3">
+          <p class="text-slate-500 italic text-sm">Loading your tasks…</p>
+        </div>
       </div>
 
-      <div class="flex items-center gap-3 p-3 rounded-xl bg-slate-900/60 hover:bg-slate-900 transition cursor-pointer" onclick="window.location.href='/workspace/members/invite'">
-        <span class="text-2xl">👥</span>
-        <div>
-          <div class="font-medium">Invite your team</div>
-          <div class="text-slate-400 text-xs">Bring collaborators into your workspace</div>
+      <!-- PROJECTS WITH PROGRESS -->
+      <div class="bg-slate-800/40 border border-slate-700/50 rounded-2xl p-6">
+        <div class="flex items-center justify-between mb-5">
+          <div>
+            <h2 class="text-base font-semibold">📁 Projects</h2>
+            <p class="text-xs text-slate-500 mt-0.5">Track progress across your workspace</p>
+          </div>
+          <a href="/projects/create" class="bg-blue-600 hover:bg-blue-700 px-3 py-1.5 rounded-lg text-xs transition font-medium">+ New Project</a>
         </div>
-        <span class="ml-auto text-blue-400 text-xs">→</span>
+        <div id="projectProgressList" class="space-y-4">
+          <p class="text-slate-500 italic text-sm">Loading projects…</p>
+        </div>
       </div>
 
-      <div class="flex items-center gap-3 p-3 rounded-xl bg-slate-900/60 hover:bg-slate-900 transition cursor-pointer" onclick="window.location.href='/projects'">
-        <span class="text-2xl">✅</span>
-        <div>
-          <div class="font-medium">Manage tasks</div>
-          <div class="text-slate-400 text-xs">Break projects into actionable tasks with deadlines</div>
+    </div>
+
+    <!-- RIGHT COL -->
+    <div class="space-y-6">
+
+      <!-- QUICK ACTIONS -->
+      <div class="bg-slate-800/40 border border-slate-700/50 rounded-2xl p-5">
+        <h2 class="text-sm font-semibold mb-4">⚡ Quick Actions</h2>
+        <div class="space-y-2">
+          <a href="/projects/create" class="flex items-center gap-3 p-3 rounded-xl bg-blue-600/10 hover:bg-blue-600/20 border border-blue-500/20 transition text-sm font-medium text-blue-300">
+            <span>＋</span> Create Project
+          </a>
+          <a href="/workspace/members" class="flex items-center gap-3 p-3 rounded-xl bg-slate-700/40 hover:bg-slate-700/60 border border-slate-600/30 transition text-sm text-slate-300">
+            <span>👥</span> Manage Members
+          </a>
+          <a href="/projects" class="flex items-center gap-3 p-3 rounded-xl bg-slate-700/40 hover:bg-slate-700/60 border border-slate-600/30 transition text-sm text-slate-300">
+            <span>✅</span> View All Tasks
+          </a>
         </div>
-        <span class="ml-auto text-blue-400 text-xs">→</span>
+      </div>
+
+      <!-- TEAM MEMBERS -->
+      <div class="bg-slate-800/40 border border-slate-700/50 rounded-2xl p-5">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-sm font-semibold">👥 Team</h2>
+          <a href="/workspace/members" class="text-xs text-slate-500 hover:text-white transition">Manage →</a>
+        </div>
+        <div id="memberListWidget" class="space-y-3">
+          <p class="text-slate-500 italic text-sm">Loading…</p>
+        </div>
+      </div>
+
+      <!-- INVITE LINK -->
+      <div class="bg-gradient-to-br from-violet-900/30 to-blue-900/30 border border-violet-500/20 rounded-2xl p-5">
+        <h2 class="text-sm font-semibold mb-1">🔗 Invite Your Team</h2>
+        <p class="text-xs text-slate-400 mb-3">Share this link with your teammates to let them join instantly.</p>
+        <div class="flex items-center gap-2 bg-slate-900/60 rounded-lg px-3 py-2 border border-slate-700/50">
+          <span id="inviteLinkEl" class="text-xs text-slate-400 truncate flex-1">Loading…</span>
+          <button id="copyInviteBtn" class="text-xs text-blue-400 hover:text-blue-300 transition font-medium shrink-0">Copy</button>
+        </div>
       </div>
 
     </div>
@@ -184,15 +145,13 @@
 
 </main>
 
-
-<!-- FOOTER -->
-<footer class="border-t border-slate-800 py-6 text-center text-sm text-slate-500">
+<footer class="border-t border-slate-800/60 py-5 text-center text-xs text-slate-600 mt-8">
   © <%= new Date().getFullYear() %> TenantFlow. All Rights Reserved.
 </footer>
 
 <script src="/js/api.js?v=2"></script>
 <script src="/js/auth.js"></script>
-<script src="/js/dashboard.js"></script>
+<script src="/js/dashboard.js?v=2"></script>
 
 </body>
 </html>
