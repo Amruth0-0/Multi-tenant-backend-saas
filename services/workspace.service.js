@@ -1,6 +1,9 @@
 const Workspace = require("../models/workspace.model");
 const WorkspaceMember = require("../models/workspaceMember.model");
-const createError = require("../utils/createError")
+const createError = require("../utils/createError");
+const crypto = require("crypto");
+
+const generateCode = () => crypto.randomBytes(4).toString("hex");
 
 const createWorkspace = async ({ name, userId }) => {
   if (!name || !name.trim()) {
@@ -15,7 +18,8 @@ const createWorkspace = async ({ name, userId }) => {
   try {
     wkspace = await Workspace.create({
       name: name.trim(),
-      ownerId: userId, 
+      ownerId: userId,
+      inviteCode: generateCode(),
     });
   } catch (error) {
     if (error.code === 11000) {
@@ -34,7 +38,23 @@ const createWorkspace = async ({ name, userId }) => {
     _id: wkspace._id,
     tenantId: wkspace.tenantId, 
     name: wkspace.name,
+    inviteCode: wkspace.inviteCode,
   };
 };
 
-module.exports = { createWorkspace };
+const resetInviteCode = async (workspaceId) => {
+  const newCode = generateCode();
+  const wkspace = await Workspace.findByIdAndUpdate(
+    workspaceId,
+    { inviteCode: newCode },
+    { new: true }
+  );
+
+  if (!wkspace) {
+    throw createError("Workspace not found", 404);
+  }
+
+  return wkspace.inviteCode;
+};
+
+module.exports = { createWorkspace, resetInviteCode };

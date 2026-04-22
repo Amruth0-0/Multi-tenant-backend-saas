@@ -3,11 +3,11 @@ const router = express.Router();
 
 const { verifyToken } = require("../middleware/verifyToken");
 const { authRole } = require("../middleware/authRole");
-const { workspaceCreate } = require("../controllers/workspace.controller");
-const { createInvite, getInviteDetails, acceptInvite, } = require("../controllers/invite.controller");
+const { workspaceCreate, getWorkspace, resetInviteLink } = require("../controllers/workspace.controller");
+const { getInviteDetails, acceptInvite, } = require("../controllers/invite.controller");
 const { workspaceValidator } = require("../validators/workspace.validator");
-const { inviteMemberValidator } = require("../validators/member.validator")
-
+const { inviteMemberValidator, updateMemberRoleValidator } = require("../validators/member.validator")
+const { acceptInviteValidator } = require("../validators/invite.validator")
 
 // Public route to validate invite token
 router.get("/invite/:token", getInviteDetails);
@@ -18,11 +18,13 @@ router.use(verifyToken);
 // Create workspace
 router.post("/", workspaceValidator, workspaceCreate);
 
-// Create invite
-router.post("/invite", authRole("owner"), inviteMemberValidator, createInvite);
+// Get workspace details (including inviteCode)
+router.get("/:workspaceId", getWorkspace);
+
+// Reset invite link
+router.post("/:workspaceId/reset-invite", authRole("owner"), resetInviteLink);
 
 // Accept invite
-router.post("/accept-invite", acceptInvite);
-
+router.post("/accept-invite", acceptInviteValidator, acceptInvite);
 
 module.exports = router;

@@ -32,16 +32,59 @@ const workspaceCreate = async (req, res) => {
       { expiresIn: "1d" },
     );
 
+    res.cookie("token", token, {
+      httpOnly: true, sameSite: "strict", secure: process.env.NODE_ENV === 'production'
+    });
+
     return res.status(201).json({
       success: true,
       message: "Workspace created",
       workspace,
+      inviteCode: workspace.inviteCode,
       token,
     });
   } catch (err) {
     return res.status(err.status || 500).json({
       success: false,
       message: err.message || "Workspace creation failed",
+    });
+  }
+};
+
+const getWorkspace = async (req, res) => {
+  try {
+    const { workspaceId } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(workspaceId)) {
+      return res.status(400).json({ success: false, message: "Invalid workspaceId" });
+    }
+
+    const isMember = await workspaceMemberModel.findOne({
+      userId: req.user.userId,
+      workspaceId,
+    });
+
+    if (!isMember) {
+      return res.status(403).json({ success: false, message: "Access denied" });
+    }
+
+    const Workspace = require("../models/workspace.model");
+    const workspace = await Workspace.findById(workspaceId).select("name tenantId inviteCode status");
+
+    if (!workspace) {
+      return res.status(404).json({ success: false, message: "Workspace not found" });
+    }
+
+    return res.status(200).json({
+      success: true,
+      inviteCode: workspace.inviteCode,
+      name: workspace.name,
+      workspace,
+    });
+  } catch (err) {
+    return res.status(err.status || 500).json({
+      success: false,
+      message: err.message || "Failed to fetch workspace",
     });
   }
 };
@@ -227,9 +270,37 @@ const updateMemberRole = async (req, res) => {
   }
 };
 
+const resetInviteLink = async (req, res) => {
+  try {
+    const { workspaceId } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(workspaceId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid workspaceId",
+      });
+    }
+
+    const newCode = await workspaceService.resetInviteCode(workspaceId);
+
+    return res.status(200).json({
+      success: true,
+      message: "Invite link reset successfully",
+      inviteCode: newCode,
+    });
+  } catch (err) {
+    return res.status(err.status || 500).json({
+      success: false,
+      message: err.message || "Failed to reset invite link",
+    });
+  }
+};
+
 module.exports = {
   workspaceCreate,
+  getWorkspace,
   getWorkspaceMembers,
   removeMember,
   updateMemberRole,
+  resetInviteLink,
 };

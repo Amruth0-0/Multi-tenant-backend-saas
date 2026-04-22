@@ -1,67 +1,26 @@
-const inviteModel = require("../models/invite.model");
+const Workspace = require("../models/workspace.model");
 const userModel = require("../models/user.model");
 const workspaceMemberModel = require("../models/workspaceMember.model");
-const generateInviteToken = require("../utils/generateToken");
-const createError = require("../utils/createError")
-
-const createInvite = async ({ email, workspaceId, role }) => {
-  const existingPendingInvite = await inviteModel.findOne({
-    email,
-    workspaceId,
-    status: "pending",
-    expiresAt: { $gt: new Date() },
-  });
-
-  if (existingPendingInvite) {
-   throw createError("A pending invite already exists for this email", 409);
-  }
-
-  const token = generateInviteToken();
-
-  const invite = await inviteModel.create({
-    email,
-    workspaceId: workspaceId,
-    role,
-    token,
-    expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24),
-  });
-
-  return invite;
-};
+const createError = require("../utils/createError");
 
 const getInviteByToken = async (token) => {
-  const invite = await inviteModel
-    .findOne({ token })
-    .populate("workspaceId", "name");
+  const workspace = await Workspace.findOne({ inviteCode: token }).select("name _id");
 
-  if (!invite) {
-    throw createError("Invalid invite", 404);
+  if (!workspace) {
+    throw createError("Invalid or expired invite link", 404);
   }
 
-  if (invite.status === "accepted") {
-   throw createError("Invite already used", 409);
-  }
-
-  if (invite.expiresAt < new Date()) {
-   throw createError("Invite expired", 410);
-  }
-
-  return invite;
+  return {
+    workspaceId: workspace,
+    role: "member"
+  };
 };
 
 const acceptInvite = async ({ token, userId }) => {
-  const invite = await inviteModel.findOne({ token });
+  const workspace = await Workspace.findOne({ inviteCode: token });
 
-  if (!invite) {
-    throw createError("Invite expired", 410);
-  }
-
-  if (invite.status === "accepted") {
-    throw createError("Invite already used", 409);
-  }
-
-  if (invite.expiresAt < new Date()) {
-    throw createError("Invite expired", 410);
+  if (!workspace) {
+    throw createError("Invalid or expired invite link", 404);
   }
 
   const user = await userModel.findById(userId);
@@ -70,13 +29,9 @@ const acceptInvite = async ({ token, userId }) => {
     throw createError("User not found", 404);
   }
 
-  if (user.email.toLowerCase() !== invite.email.toLowerCase()) {
-     throw createError("This invite is not assigned to your account", 403);
-  }
-
   const existingMember = await workspaceMemberModel.findOne({
     userId: userId,
-    workspaceId: invite.workspaceId,
+    workspaceId: workspace._id,
   });
 
   if (existingMember) {
@@ -85,18 +40,17 @@ const acceptInvite = async ({ token, userId }) => {
 
   await workspaceMemberModel.create({
     userId: userId,
-    workspaceId: invite.workspaceId,
-    role: invite.role,
+    workspaceId: workspace._id,
+    role: "member",
   });
 
-  invite.status = "accepted";
-  await invite.save();
-
-  return invite;
+  return {
+    workspaceId: workspace._id,
+    name: workspace.name
+  };
 };
 
 module.exports = {
-  createInvite,
   getInviteByToken,
   acceptInvite,
 };

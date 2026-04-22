@@ -1,38 +1,5 @@
 const inviteService = require("../services/invite.service");
 
-const createInvite = async (req, res) => {
-  try {
-    const email = req.body.email?.trim().toLowerCase();
-    const role = req.body.role || "member";
-    const workspaceId = req.user.workspaceId;
-
-    console.log("CREATE INVITE REQ.USER:", req.user);
-    console.log("CREATE INVITE WORKSPACE ID:", workspaceId);
-
-    if (!workspaceId) {
-      throw new Error(`workspaceId is missing from req.user! Keys: ${Object.keys(req.user)}`);
-    }
-
-    const invite = await inviteService.createInvite({
-      email,
-      workspaceId: workspaceId,
-      role,
-    });
-
-    res.status(201).json({
-      success: true,
-      message: "Invite created successfully",
-      data: invite,
-      inviteLink: `http://localhost:3000/invite/${invite.token}`,
-    });
-  } catch (err) {
-    res.status(err.status || 400).json({
-      success: false,
-      message: err.message || "Invite creation failed"
-    });
-  }
-};
-
 const getInviteDetails = async (req, res) => {
   try {
     const token = req.params.token?.trim();
@@ -42,12 +9,7 @@ const getInviteDetails = async (req, res) => {
     res.status(200).json({
       success: true,
       message: "Invite is valid",
-      data: {
-        email: invite.email,
-        role: invite.role,
-        workspace: invite.workspaceId,
-        expiresAt: invite.expiresAt,
-      },
+      data: invite,
     });
   } catch (err) {
     res.status(err.status || 400).json({
@@ -78,7 +40,6 @@ const acceptInvite = async (req, res) => {
 };
 
 module.exports = {
-  createInvite,
   getInviteDetails,
   acceptInvite,
 };

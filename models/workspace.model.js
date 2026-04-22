@@ -24,6 +24,11 @@ const workspaceModel = new mongoose.Schema({
         type: String,
         default: 'active',
         enum: ["active", "suspended", "deleted"]
+    },
+    inviteCode: {
+        type: String,
+        unique: true,
+        sparse: true
     }
 },{timestamps: true})
 

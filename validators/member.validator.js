@@ -27,4 +27,13 @@ function validateRequest(req, res, next) {
   next();
 }
 
-module.exports = { inviteMemberValidator };
+const updateMemberRoleValidator = [
+  body("role")
+    .notEmpty()
+    .withMessage("Role is required")
+    .isIn(["admin", "member"])
+    .withMessage("Role must be admin or member"),
+  validateRequest,
+];
+
+module.exports = { inviteMemberValidator, updateMemberRoleValidator };
