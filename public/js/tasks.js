@@ -307,12 +307,48 @@ async function loadTaskDetail(taskId) {
   if (backLink && task.projectId) backLink.href = "/projects/" + task.projectId;
 }
 
+// ─── Decode JWT ────────────────────────────────────────────────────────────────
+function decodeToken() {
+  const token = localStorage.getItem("token");
+  if (!token) return null;
+  try { return JSON.parse(atob(token.split(".")[1])); } catch { return null; }
+}
+
+async function loadMembersForDropdown() {
+  const decoded = decodeToken();
+  if (!decoded?.workspaceId) return;
+  const select = document.getElementById("assignedTo");
+  if (!select) return;
+
+  const res = await callApi("/workspace-members/" + decoded.workspaceId + "/members", "GET");
+  const members = res?.members || [];
+
+  const unassignedOption = select.options[0];
+  select.innerHTML = "";
+  if (unassignedOption) select.appendChild(unassignedOption);
+  else select.innerHTML = `<option value="">Unassigned</option>`;
+
+  members.forEach(m => {
+    const option = document.createElement("option");
+    option.value = m.userId._id;
+    option.textContent = m.userId.username;
+    select.appendChild(option);
+  });
+}
+
 // ─── Auto-init ────────────────────────────────────────────────────────────────
-const pageProjectId = window.PROJECT_ID;
-if (pageProjectId && !window.TASK_ID) {
-  loadProjectDetails(pageProjectId);
-  loadTasks(pageProjectId);
-}
-if (window.TASK_ID) {
-  loadTaskDetail(window.TASK_ID);
-}
+(async function init() {
+  const pageProjectId = window.PROJECT_ID;
+  if (pageProjectId && !window.TASK_ID) {
+    loadProjectDetails(pageProjectId);
+    loadTasks(pageProjectId);
+  }
+
+  if (document.getElementById("assignedTo")) {
+    await loadMembersForDropdown();
+  }
+
+  if (window.TASK_ID) {
+    await loadTaskDetail(window.TASK_ID);
+  }
+})();

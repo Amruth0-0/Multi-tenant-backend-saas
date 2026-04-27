@@ -101,15 +101,6 @@
           class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm"
         >
           <option value="">Unassigned</option>
-
-          <% if (members?.length) { %>
-            <% members.forEach(member => { %>
-              <option value="<%= member._id %>">
-                <%= member.name %>
-              </option>
-            <% }) %>
-          <% } %>
-
         </select>
       </div>
 
