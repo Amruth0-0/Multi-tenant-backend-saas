@@ -27,6 +27,20 @@ function hideError() {
   if (errorBox) errorBox.classList.add("hidden");
 }
 
+// ─── Invite Token Link Preserver ──────────────────────────────────────────────
+window.addEventListener("DOMContentLoaded", () => {
+  const params = new URLSearchParams(window.location.search);
+  const inviteToken = params.get("inviteToken");
+  
+  if (inviteToken) {
+    const links = document.querySelectorAll('a[href="/login"], a[href="/register"]');
+    links.forEach(link => {
+      const base = link.getAttribute('href');
+      link.setAttribute('href', `${base}?inviteToken=${inviteToken}`);
+    });
+  }
+});
+
 // ─── Login ────────────────────────────────────────────────────────────────────
 const loginForm = document.getElementById("loginForm");
 
@@ -132,7 +146,15 @@ if (registerForm) {
 
       localStorage.setItem("token", data.token);
       if (data.username) localStorage.setItem("username", data.username);
-      window.location.href = data.redirectTo || "/create-workspace";
+      
+      const params      = new URLSearchParams(window.location.search);
+      const inviteToken = params.get("inviteToken");
+      
+      if (inviteToken) {
+        window.location.href = `/invite/${inviteToken}`;
+      } else {
+        window.location.href = data.redirectTo || "/create-workspace";
+      }
 
     } catch (err) {
       showError("Network error. Please check your connection and try again.");

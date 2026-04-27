@@ -8,13 +8,20 @@ const createProject = async (name, description, tenantId, createdBy) => {
         throw createError("Name is required", 400);
     }
 
-    const project = await projectModel.create({
-        name,
-        description,
-        tenantId,
-        createdBy
-    })
-    return project
+    try {
+        const project = await projectModel.create({
+            name,
+            description,
+            tenantId,
+            createdBy
+        })
+        return project
+    } catch (error) {
+        if (error.code === 11000) {
+            throw createError("A project with this name already exists in your workspace", 400);
+        }
+        throw error;
+    }
 }
 
 const getAllProjects = async (tenantId) => {
@@ -83,10 +90,18 @@ const updateProject = async (projectId, tenantId, role, name, description, statu
     if (description) updateData.description = description.trim()
     if (status) updateData.status = status.trim()
 
-    const project = await projectModel.findOneAndUpdate({
-        _id: projectId,
-        tenantId
-    }, updateData, { new: true })
+    let project;
+    try {
+        project = await projectModel.findOneAndUpdate({
+            _id: projectId,
+            tenantId
+        }, updateData, { new: true })
+    } catch (error) {
+        if (error.code === 11000) {
+            throw createError("A project with this name already exists in your workspace", 400);
+        }
+        throw error;
+    }
 
 
     if (!project) {
