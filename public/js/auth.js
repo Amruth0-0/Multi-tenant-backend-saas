@@ -14,9 +14,7 @@ if (togglePassword && passwordField) {
   });
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
 function showError(msg) {
-  // Show in errorBox if present, toast already fires from callApi
   if (errorBox) {
     errorBox.textContent = msg || "Something went wrong. Please try again.";
     errorBox.classList.remove("hidden");
@@ -27,7 +25,6 @@ function hideError() {
   if (errorBox) errorBox.classList.add("hidden");
 }
 
-// ─── Invite Token Link Preserver ──────────────────────────────────────────────
 window.addEventListener("DOMContentLoaded", () => {
   const params = new URLSearchParams(window.location.search);
   const inviteToken = params.get("inviteToken");
@@ -41,7 +38,6 @@ window.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-// ─── Login ────────────────────────────────────────────────────────────────────
 const loginForm = document.getElementById("loginForm");
 
 if (loginForm) {
@@ -53,7 +49,7 @@ if (loginForm) {
     const password = document.getElementById("password").value;
     const btn      = document.getElementById("loginBtn") || loginForm.querySelector("button[type=submit]");
 
-    if (btn) { btn.disabled = true; btn.textContent = "Signing in…"; }
+    if (btn) { btn.disabled = true; btn.textContent = "Signing in\u2026"; }
 
     try {
       const data = await callApi("/auth/login", "POST", { email, password });
@@ -69,44 +65,33 @@ if (loginForm) {
         return;
       }
 
-      localStorage.setItem("token", token);
-      if (data.username) localStorage.setItem("username", data.username);
-
       const params      = new URLSearchParams(window.location.search);
       const inviteToken = params.get("inviteToken");
       const workspaces  = data.workspaces || [];
 
-      // CASE 1: Invite flow
       if (inviteToken) {
         window.location.href = `/invite/${inviteToken}`;
         return;
       }
 
-      // CASE 2: No workspace yet
       if (workspaces.length === 0) {
         window.location.href = "/create-workspace";
         return;
       }
 
-      // CASE 3: Has workspaces → auto-select the first
       const selectedWs = workspaces[0];
       const res = await callApi("/auth/workspace/select", "POST", {
         workspaceId: selectedWs.workspaceId,
       });
 
-      // If select fails, don't redirect to a broken dashboard
       if (!res || res.success === false) {
         showError("Could not activate your workspace. Please try again.");
         return;
       }
 
-      if (res.token) localStorage.setItem("token", res.token);
-      if (selectedWs.name) localStorage.setItem("workspaceName", selectedWs.name);
-
       window.location.href = "/dashboard";
 
     } catch (err) {
-      // Handles network failures / server down
       showError("Network error. Please check your connection and try again.");
     } finally {
       if (btn) { btn.disabled = false; btn.textContent = "Sign In"; }
@@ -114,7 +99,6 @@ if (loginForm) {
   });
 }
 
-// ─── Register ─────────────────────────────────────────────────────────────────
 const registerForm = document.getElementById("registerForm");
 
 if (registerForm) {
@@ -127,7 +111,7 @@ if (registerForm) {
     const password = document.getElementById("password").value;
     const btn      = document.getElementById("registerBtn") || registerForm.querySelector("button[type=submit]");
 
-    if (btn) { btn.disabled = true; btn.textContent = "Creating account…"; }
+    if (btn) { btn.disabled = true; btn.textContent = "Creating account\u2026"; }
 
     try {
       const data = await callApi("/auth/register", "POST", { username: name, email, password });
@@ -137,16 +121,12 @@ if (registerForm) {
         return;
       }
 
-      // Guard: ensure token actually exists before storing
       if (!data.token) {
         showError("Account created but session could not be established. Please log in.");
         window.location.href = "/login";
         return;
       }
 
-      localStorage.setItem("token", data.token);
-      if (data.username) localStorage.setItem("username", data.username);
-      
       const params      = new URLSearchParams(window.location.search);
       const inviteToken = params.get("inviteToken");
       
@@ -164,13 +144,11 @@ if (registerForm) {
   });
 }
 
-// ─── Logout ───────────────────────────────────────────────────────────────────
 const logoutBtn = document.getElementById("logoutBtn");
 
 if (logoutBtn) {
   logoutBtn.addEventListener("click", async function () {
     await callApi("/auth/logout", "POST");
-    localStorage.clear();
     window.location.href = "/login";
   });
 }

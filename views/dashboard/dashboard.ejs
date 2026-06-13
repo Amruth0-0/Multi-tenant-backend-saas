@@ -16,24 +16,30 @@
   </style>
 </head>
 <body data-protected="true" class="bg-[#0a0f1e] text-white min-h-screen flex flex-col">
+<script>window.__USER__ = <%- JSON.stringify(locals.__user__ || null) %>;</script>
 
 <!-- NAVBAR -->
 <nav class="border-b border-slate-800/60 bg-[#0d1424]/80 backdrop-blur-xl sticky top-0 z-50">
-  <div class="max-w-7xl mx-auto flex items-center justify-between px-6 py-3">
+  <div class="max-w-7xl mx-auto flex items-center justify-between px-4 sm:px-6 py-3">
     <div class="flex items-center gap-3">
       <img src="/assets/Logo.png" alt="TenantFlow Logo" class="h-8 w-auto object-contain" />
-      <span class="text-base font-semibold tracking-tight">TenantFlow</span>
+      <span class="text-base font-semibold tracking-tight hidden sm:inline">TenantFlow</span>
     </div>
-    <div class="flex items-center gap-1 text-sm text-slate-400">
-      <a href="/dashboard" class="px-3 py-1.5 rounded-md bg-slate-800 text-white text-xs font-medium">Dashboard</a>
-      <a href="/projects" class="px-3 py-1.5 rounded-md hover:bg-slate-800 hover:text-white transition text-xs">Projects</a>
-      <a href="/workspace/members" class="px-3 py-1.5 rounded-md hover:bg-slate-800 hover:text-white transition text-xs">Members</a>
-      <button id="logoutBtn" class="px-3 py-1.5 rounded-md hover:bg-red-900/40 hover:text-red-400 transition text-xs ml-2">Logout</button>
+
+    <button id="navToggle" aria-expanded="false" class="md:hidden p-2 text-slate-400 hover:text-white transition" aria-label="Toggle navigation">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+    </button>
+
+    <div id="navMenu" class="hidden md:flex absolute md:static top-12 left-0 right-0 md:flex-row flex-col items-stretch md:items-center gap-1 text-sm text-slate-400 bg-[#0d1424] md:bg-transparent px-4 sm:px-6 py-3 md:py-0 border-b md:border-0 border-slate-800/60 z-50">
+      <a href="/dashboard" class="px-3 py-2 md:py-1.5 rounded-md bg-slate-800 text-white text-xs font-medium text-center md:text-left">Dashboard</a>
+      <a href="/projects" class="px-3 py-2 md:py-1.5 rounded-md hover:bg-slate-800 hover:text-white transition text-xs text-center md:text-left">Projects</a>
+      <a href="/workspace/members" class="px-3 py-2 md:py-1.5 rounded-md hover:bg-slate-800 hover:text-white transition text-xs text-center md:text-left">Members</a>
+      <button id="logoutBtn" class="px-3 py-2 md:py-1.5 rounded-md hover:bg-red-900/40 hover:text-red-400 transition text-xs text-center md:text-left mt-1 md:mt-0 md:ml-2">Logout</button>
     </div>
   </div>
 </nav>
 
-<main class="flex-1 px-6 py-8 max-w-7xl mx-auto w-full">
+  <main class="flex-1 px-4 sm:px-6 py-6 sm:py-8 max-w-7xl mx-auto w-full">
 
   <!-- GREETING HEADER -->
   <div class="mb-8 fade-in">
@@ -45,7 +51,7 @@
   </div>
 
   <!-- STATS ROW -->
-  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-8">
     <div class="stat-card bg-slate-800/40 border border-slate-700/50 rounded-2xl p-5 cursor-default">
       <p class="text-xs text-slate-500 uppercase tracking-widest mb-2">Workspace</p>
       <h2 id="workspaceNameEl" class="text-lg font-semibold truncate">Loading…</h2>
@@ -65,7 +71,7 @@
   </div>
 
   <!-- MAIN GRID -->
-  <div class="grid md:grid-cols-3 gap-6">
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
 
     <!-- LEFT COL: My Day (takes 2 cols) -->
     <div class="md:col-span-2 space-y-6">
@@ -152,6 +158,7 @@
 <script src="/js/api.js?v=2"></script>
 <script src="/js/auth.js"></script>
 <script src="/js/dashboard.js?v=2"></script>
+<script src="/js/navbar.js"></script>
 
 </body>
 </html>

@@ -1,26 +1,16 @@
-// ─── Decode JWT ────────────────────────────────────────────────────────────────
-function decodeToken() {
-  const token = localStorage.getItem("token");
-  if (!token) return null;
-  try { return JSON.parse(atob(token.split(".")[1])); } catch { return null; }
-}
-
-const decoded = decodeToken();
-
-// ─── Load Invite Link ─────────────────────────────────────────────────────────
 async function loadInviteLink() {
-  if (!decoded?.workspaceId) return;
+  const user = window.__USER__;
+  if (!user?.workspaceId) return;
   const display = document.getElementById("inviteLinkDisplay");
   const copyBtn = document.getElementById("copyLinkBtn");
   const resetBtn = document.getElementById("resetLinkBtn");
 
-  const res = await callApi("/workspace/" + decoded.workspaceId, "GET");
+  const res = await callApi("/workspace/" + user.workspaceId, "GET");
   const code = res?.inviteCode;
 
   if (code && display) {
     const link = window.location.origin + "/invite/" + code;
     display.textContent = link;
-    localStorage.setItem("inviteCode", code);
 
     if (copyBtn) {
       copyBtn.addEventListener("click", () => {
@@ -36,27 +26,26 @@ async function loadInviteLink() {
   if (resetBtn) {
     resetBtn.addEventListener("click", async () => {
       if (!confirm("This will invalidate the current invite link. Continue?")) return;
-      resetBtn.textContent = "Resetting…";
-      const r = await callApi("/workspace/" + decoded.workspaceId + "/reset-invite", "POST");
+      resetBtn.textContent = "Resetting\u2026";
+      const r = await callApi("/workspace/" + user.workspaceId + "/reset-invite", "POST");
       if (r?.inviteCode && display) {
         const newLink = window.location.origin + "/invite/" + r.inviteCode;
         display.textContent = newLink;
-        localStorage.setItem("inviteCode", r.inviteCode);
         showToast("Invite link reset! Old link is now dead.", "warn");
       }
-      resetBtn.textContent = "↺ Reset link";
+      resetBtn.textContent = "\u21BA Reset link";
     });
   }
 }
 
-// ─── Load Members Table ───────────────────────────────────────────────────────
 async function loadMembers() {
-  if (!decoded?.workspaceId) return;
+  const user = window.__USER__;
+  if (!user?.workspaceId) return;
 
   const tbody = document.getElementById("memberTableBody");
   if (!tbody) return;
 
-  const res = await callApi("/workspace-members/" + decoded.workspaceId + "/members", "GET");
+  const res = await callApi("/workspace-members/" + user.workspaceId + "/members", "GET");
   const members = res?.members || [];
 
   if (members.length === 0) {
@@ -91,19 +80,18 @@ async function loadMembers() {
         </td>
         <td class="px-4 py-3 text-center">
           ${role !== "owner"
-            ? `<button onclick="removeMember('${decoded.workspaceId}','${memberId}', this)"
+            ? `<button onclick="removeMember('${user.workspaceId}','${memberId}', this)"
                  class="text-xs text-red-400 hover:text-red-300 transition">Remove</button>`
-            : `<span class="text-xs text-slate-600">—</span>`}
+            : `<span class="text-xs text-slate-600">\u2014</span>`}
         </td>
       </tr>`;
   }).join("");
 }
 
-// ─── Remove Member ────────────────────────────────────────────────────────────
 async function removeMember(workspaceId, memberId, btn) {
   if (!confirm("Remove this member from the workspace?")) return;
   btn.disabled = true;
-  btn.textContent = "Removing…";
+  btn.textContent = "Removing\u2026";
   const res = await callApi(`/workspace-members/${workspaceId}/members/${memberId}`, "DELETE");
   if (res?.success) {
     showToast("Member removed", "warn");
@@ -114,6 +102,5 @@ async function removeMember(workspaceId, memberId, btn) {
   }
 }
 
-// ─── Init ─────────────────────────────────────────────────────────────────────
 loadInviteLink();
 loadMembers();

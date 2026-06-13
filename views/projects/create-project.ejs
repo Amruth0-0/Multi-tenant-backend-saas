@@ -12,25 +12,29 @@
     class="bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white min-h-screen flex flex-col"
   >
     <nav class="border-b border-slate-800 bg-slate-900/80 backdrop-blur-md">
-      <div class="max-w-7xl mx-auto flex justify-between px-6 py-4">
+      <div class="max-w-7xl mx-auto flex items-center justify-between px-4 sm:px-6 py-4">
         <div class="flex items-center gap-3">
           <img src="/assets/Logo.png" class="h-8" />
-          <span class="text-lg font-semibold">TenantFlow</span>
+          <span class="text-lg font-semibold hidden sm:inline">TenantFlow</span>
         </div>
 
-        <div class="flex gap-6 text-sm text-slate-400">
-          <a href="/dashboard">Dashboard</a>
-          <a href="/projects">Projects</a>
-          <a href="/workspace/members">Members</a>
+        <button id="navToggle" aria-expanded="false" class="md:hidden p-2 text-slate-400 hover:text-white transition" aria-label="Toggle navigation">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+
+        <div id="navMenu" class="hidden md:flex absolute md:static top-16 left-0 right-0 md:flex-row flex-col items-center gap-4 md:gap-6 text-sm text-slate-400 bg-slate-900 md:bg-transparent px-6 py-4 md:py-0 border-b md:border-0 border-slate-800 z-50">
+          <a href="/dashboard" class="hover:text-white transition w-full md:w-auto text-center md:text-left">Dashboard</a>
+          <a href="/projects" class="hover:text-white transition w-full md:w-auto text-center md:text-left">Projects</a>
+          <a href="/workspace/members" class="hover:text-white transition w-full md:w-auto text-center md:text-left">Members</a>
         </div>
       </div>
     </nav>
 
-    <main class="flex-1 flex justify-center items-center px-6 py-12">
+    <main class="flex-1 flex justify-center items-center px-4 sm:px-6 py-8 sm:py-12">
       <div
-        class="w-full max-w-lg bg-slate-800/60 border border-slate-700 rounded-3xl p-10"
+        class="w-full max-w-lg bg-slate-800/60 border border-slate-700 rounded-2xl sm:rounded-3xl p-6 sm:p-10"
       >
-        <h1 class="text-3xl font-bold text-center mb-6">Create Project</h1>
+        <h1 class="text-2xl sm:text-3xl font-bold text-center mb-6">Create Project</h1>
 
         <form id="projectForm" class="space-y-6">
           <div>
@@ -73,4 +77,5 @@
   <script src="/js/api.js"></script>
   <script src="/js/auth.js"></script>
   <script src="/js/projects.js"></script>
+  <script src="/js/navbar.js"></script>
 </html>

@@ -27,9 +27,9 @@ const loadInviteDetails = async () => {
 
     inviteInfo.classList.remove("hidden");
 
-    const storedToken = localStorage.getItem("token");
+    const user = window.__USER__;
 
-    if (!storedToken) {
+    if (!user) {
       message.textContent = "Please login first to accept this invite";
       acceptInviteBtn.textContent = "Go to Login";
       acceptInviteBtn.classList.remove("hidden");
@@ -45,9 +45,9 @@ const loadInviteDetails = async () => {
 };
 
 const handleAcceptInvite = async () => {
-  const storedToken = localStorage.getItem("token");
+  const user = window.__USER__;
 
-  if (!storedToken) {
+  if (!user) {
     window.location.href = `/login?inviteToken=${token}`;
     return;
   }
@@ -66,20 +66,11 @@ const handleAcceptInvite = async () => {
       return;
     }
 
-    // Refresh workspaces by logging in again via selectWorkspace
-    // The invite data already has workspaceId — use it to switch context
     const inviteWorkspaceId = result.data?.workspaceId;
     if (inviteWorkspaceId) {
       const switchRes = await callApi("/auth/workspace/select", "POST", {
         workspaceId: inviteWorkspaceId,
       });
-      if (switchRes?.token) {
-        localStorage.setItem("token", switchRes.token);
-        // Save workspace name if available
-        if (workspaceName?.textContent) {
-          localStorage.setItem("workspaceName", workspaceName.textContent);
-        }
-      }
     }
 
     alert(result.message || "Invite accepted successfully! Welcome to the workspace.");

@@ -11,21 +11,25 @@
 <body class="bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white min-h-screen">
 
   <!-- NAVBAR -->
-  <nav class="flex justify-between items-center px-10 py-6">
+  <nav class="flex justify-between items-center px-4 sm:px-10 py-6">
     <div class="flex items-center gap-3">
     <img 
       src="/assets/Logo.png" 
       alt="TenantFlow Logo"
-      class=" h-9 w-auto object-contain"
+      class="h-9 w-auto object-contain"
     />
      <span class="text-xl font-semibold tracking-wide">TenantFlow</span>
     </div>
 
-    <div class="flex items-center gap-8 text-sm text-slate-300">
-      <a href="#features" class="hover:text-white transition">How it works</a>
-      <a href="/login" class="hover:text-white transition">Login</a>
+    <button id="navToggle" aria-expanded="false" class="md:hidden p-2 text-slate-300 hover:text-white transition" aria-label="Toggle navigation">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+    </button>
+
+    <div id="navMenu" class="hidden md:flex absolute md:static top-20 left-0 right-0 md:flex-row flex-col items-center gap-4 md:gap-8 text-sm text-slate-300 bg-slate-950 md:bg-transparent px-6 py-6 md:py-0 md:px-0 border-b md:border-0 border-slate-800 z-50">
+      <a href="#features" class="hover:text-white transition w-full md:w-auto text-center md:text-left">How it works</a>
+      <a href="/login" class="hover:text-white transition w-full md:w-auto text-center md:text-left">Login</a>
       <a href="/register"
-        class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg text-white transition shadow-md">
+        class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg text-white transition shadow-md w-full md:w-auto text-center">
         Get Started
       </a>
     </div>
@@ -41,13 +45,13 @@
       and scale securely.
     </p>
 
-    <div class="flex justify-center gap-4">
+    <div class="flex flex-col sm:flex-row justify-center gap-4 px-4">
       <a href="/register"
-        class="bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-lg font-medium transition shadow-lg">
+        class="bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-lg font-medium transition shadow-lg text-center">
         Create Workspace
       </a>
       <a href="/login"
-        class="border border-slate-600 hover:border-slate-400 px-6 py-3 rounded-lg transition">
+        class="border border-slate-600 hover:border-slate-400 px-6 py-3 rounded-lg transition text-center">
         Login
       </a>
     </div>
@@ -59,7 +63,7 @@
       Core Features
     </h2>
 
-    <div class="grid md:grid-cols-2 gap-6 max-w-5xl mx-auto">
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-5xl mx-auto">
 
       <div class="bg-slate-800/60 backdrop-blur-md p-6 rounded-xl border border-slate-700 hover:border-blue-500 transition shadow-lg">
         <h3 class="font-semibold mb-2">🔐 Secure authentication & roles</h3>
@@ -153,5 +157,6 @@
     </div>
   </footer>
 
+<script src="/js/navbar.js"></script>
 </body>
 </html>

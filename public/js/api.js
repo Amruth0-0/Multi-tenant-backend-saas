@@ -1,4 +1,3 @@
-// ─── Toast Notification System ────────────────────────────────────────────────
 function showToast(message, type = "success") {
   const existing = document.getElementById("_tfToast");
   if (existing) existing.remove();
@@ -15,29 +14,22 @@ function showToast(message, type = "success") {
   const toast = document.createElement("div");
   toast.id = "_tfToast";
   toast.className = [
-    "fixed top-5 right-5 z-[9999] flex items-center gap-3",
+    "fixed top-5 left-1/2 -translate-x-1/2 sm:left-auto sm:right-5 sm:translate-x-0 z-[9999] flex items-center gap-3",
     "px-5 py-3 rounded-2xl border text-white text-sm font-medium",
     "shadow-2xl backdrop-blur-sm transition-all duration-300 opacity-100",
     colors[type] || colors.success,
   ].join(" ");
-  toast.style.maxWidth = "360px";
+  toast.style.maxWidth = "90vw";
+  toast.style.width = "auto";
   toast.innerHTML = `<span class="text-lg leading-none">${icons[type] || "✓"}</span><span>${message}</span>`;
   document.body.appendChild(toast);
 
-  // Fade out
   setTimeout(() => { toast.style.opacity = "0"; toast.style.transform = "translateY(-8px)"; }, 2800);
   setTimeout(() => toast.remove(), 3100);
 }
 
-function getToken() {
-  return localStorage.getItem("token");
-}
-
 async function callApi(url, method, data) {
-  const token = getToken();
-
   const headers = {
-    ...(token && { Authorization: "Bearer " + token }),
     ...(data && { "Content-Type": "application/json" }),
   };
 
@@ -50,7 +42,6 @@ async function callApi(url, method, data) {
       ...(data && { body: JSON.stringify(data) }),
     });
   } catch {
-    // Network error — server unreachable or offline
     showToast("Network error. Please check your connection.", "error");
     return { success: false, message: "Network error" };
   }
@@ -58,7 +49,6 @@ async function callApi(url, method, data) {
   const result = await response.json();
 
   if (!response.ok) {
-    // If express-validator returned a 422 with an errors array, surface the first message
     if (response.status === 422 && Array.isArray(result.errors) && result.errors.length > 0) {
       const firstMsg = result.errors[0].msg || "Validation error";
       showToast(firstMsg, "error");
@@ -69,7 +59,6 @@ async function callApi(url, method, data) {
     let msg = result.message || "Something went wrong";
     const lower = msg.toLowerCase();
 
-    // Sanitize raw Mongoose/BSON internals — but NOT user-friendly validation messages
     if (
       lower.includes("validation failed") ||
       lower.includes("cast to") ||

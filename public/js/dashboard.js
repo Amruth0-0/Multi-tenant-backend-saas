@@ -1,22 +1,12 @@
-// ─── Greeting ─────────────────────────────────────────────────────────────────
 function setGreeting() {
   const hour = new Date().getHours();
   const timeEl = document.getElementById("greetingTime");
   if (!timeEl) return;
-  if (hour < 12) timeEl.textContent = "Good morning ☀️";
-  else if (hour < 17) timeEl.textContent = "Good afternoon 👋";
-  else timeEl.textContent = "Good evening 🌙";
+  if (hour < 12) timeEl.textContent = "Good morning";
+  else if (hour < 17) timeEl.textContent = "Good afternoon";
+  else timeEl.textContent = "Good evening";
 }
 
-// ─── Decode JWT ────────────────────────────────────────────────────────────────
-function decodeToken() {
-  const token = localStorage.getItem("token");
-  if (!token) return null;
-  try { return JSON.parse(atob(token.split(".")[1])); } catch { return null; }
-}
-
-
-// ─── Status badge ──────────────────────────────────────────────────────────────
 function statusBadge(status) {
   const map = {
     todo:        { label: "To Do",       cls: "bg-slate-700 text-slate-300" },
@@ -27,7 +17,6 @@ function statusBadge(status) {
   return `<span class="text-xs px-2 py-0.5 rounded-full font-medium ${s.cls}">${s.label}</span>`;
 }
 
-// ─── Due date chip ─────────────────────────────────────────────────────────────
 function dueDateChip(dueDate) {
   if (!dueDate) return "";
   const due  = new Date(dueDate);
@@ -38,25 +27,15 @@ function dueDateChip(dueDate) {
   else if (diff <= 1){ cls = "text-orange-400";  label = "Due today"; }
   else if (diff <= 3){ cls = "text-yellow-400";  label = `Due in ${diff}d`; }
   else               { cls = "text-slate-500";   label = `Due ${due.toLocaleDateString("en-GB", {day:"numeric",month:"short"})}`; }
-  return `<span class="text-xs ${cls}">📅 ${label}</span>`;
+  return `<span class="text-xs ${cls}"> ${label}</span>`;
 }
 
-// ─── Load Dashboard ─────────────────────────────────────────────────────────────
 async function loadDashboard() {
   setGreeting();
-  const decoded = decodeToken();
-  if (!decoded) return;
 
-  // Workspace name
-  const wsName = localStorage.getItem("workspaceName") || "My Workspace";
-  const wsEl = document.getElementById("workspaceNameEl");
-  if (wsEl) wsEl.textContent = wsName;
-
-  // Greeting name (use username from localStorage or fallback)
   const nameEl = document.getElementById("greetingName");
-  if (nameEl) nameEl.textContent = localStorage.getItem("username") || "there";
+  if (nameEl) nameEl.textContent = window.__USER__?.username || "there";
 
-  // ── My Tasks ──────────────────────────────────────────────────────────────────
   const myTaskList = document.getElementById("myTaskList");
   const myTaskCountEl = document.getElementById("myTaskCountEl");
   const myTaskRes = await callApi("/tasks/me", "GET");
@@ -68,7 +47,7 @@ async function loadDashboard() {
     if (myTasks.length === 0) {
       myTaskList.innerHTML = `
         <div class="text-center py-8 text-slate-500">
-          <p class="text-3xl mb-2">🎉</p>
+          <p class="text-3xl mb-2"></p>
           <p class="text-sm font-medium">You're all caught up!</p>
           <p class="text-xs mt-1">No open tasks assigned to you.</p>
         </div>`;
@@ -87,7 +66,6 @@ async function loadDashboard() {
     }
   }
 
-  // ── Projects with Progress ─────────────────────────────────────────────────
   const projectRes = await callApi("/projects", "GET");
   const projects = projectRes?.projects || [];
   const projectCountEl = document.getElementById("projectCountEl");
@@ -101,9 +79,9 @@ async function loadDashboard() {
     if (projects.length === 0) {
       projectProgressList.innerHTML = `
         <div class="text-center py-8 text-slate-500">
-          <p class="text-3xl mb-2">📁</p>
+          <p class="text-3xl mb-2"></p>
           <p class="text-sm font-medium">No projects yet</p>
-          <a href="/projects/create" class="text-xs text-blue-400 hover:text-blue-300 mt-1 inline-block">Create your first project →</a>
+          <a href="/projects/create" class="text-xs text-blue-400 hover:text-blue-300 mt-1 inline-block">Create your first project \u2192</a>
         </div>`;
     } else {
       projectProgressList.innerHTML = projects.slice(0, 5).map(p => {
@@ -131,9 +109,9 @@ async function loadDashboard() {
     }
   }
 
-  // ── Members ───────────────────────────────────────────────────────────────────
-  if (decoded.workspaceId) {
-    const memberRes = await callApi(`/workspace-members/${decoded.workspaceId}/members`, "GET");
+  const user = window.__USER__;
+  if (user?.workspaceId) {
+    const memberRes = await callApi(`/workspace-members/${user.workspaceId}/members`, "GET");
     const members = memberRes?.members || [];
 
     const memberCountEl = document.getElementById("memberCountEl");
@@ -156,13 +134,10 @@ async function loadDashboard() {
       }).join("");
     }
 
-    // ── Invite Link ────────────────────────────────────────────────────────────
-    // We fetch workspace details to get inviteCode - reuse member list response if available
     const inviteLinkEl = document.getElementById("inviteLinkEl");
     const copyBtn = document.getElementById("copyInviteBtn");
-    // Compute link from workspaceId via workspace API
-    const wsRes = await callApi(`/workspace/${decoded.workspaceId}`, "GET").catch(() => null);
-    const inviteCode = wsRes?.inviteCode || localStorage.getItem("inviteCode");
+    const wsRes = await callApi(`/workspace/${user.workspaceId}`, "GET").catch(() => null);
+    const inviteCode = wsRes?.inviteCode;
     if (inviteLinkEl && inviteCode) {
       const link = `${window.location.origin}/invite/${inviteCode}`;
       inviteLinkEl.textContent = link;

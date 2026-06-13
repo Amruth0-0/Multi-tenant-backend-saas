@@ -1,4 +1,3 @@
-// ─── Shared Helpers ───────────────────────────────────────────────────────────
 function statusBadge(status) {
   const map = {
     todo:        { label: "To Do",       cls: "bg-slate-700 text-slate-300" },
@@ -10,7 +9,7 @@ function statusBadge(status) {
 }
 
 function dueDateChip(dueDate) {
-  if (!dueDate) return "—";
+  if (!dueDate) return "\u2014";
   const due  = new Date(dueDate);
   const diff = Math.ceil((due - new Date()) / 86400000);
   if (diff < 0) return `<span class="text-red-400 text-xs">Overdue</span>`;
@@ -18,7 +17,6 @@ function dueDateChip(dueDate) {
   return `<span class="text-slate-400 text-xs">${due.toLocaleDateString("en-GB",{day:"numeric",month:"short"})}</span>`;
 }
 
-// ─── Update progress bar ──────────────────────────────────────────────────────
 function updateProgress() {
   const allCards = document.querySelectorAll("[data-task-id]");
   const doneCards = document.querySelectorAll("#boardDone [data-task-id]");
@@ -31,7 +29,6 @@ function updateProgress() {
   if (bar) bar.style.width = pct + "%";
   if (lbl) lbl.textContent = `${done} / ${total} tasks completed`;
 
-  // Update column counts
   ["countTodo","countProgress","countDone"].forEach((id, i) => {
     const col = ["#boardTodo","#boardProgress","#boardDone"][i];
     const el = document.getElementById(id);
@@ -39,7 +36,6 @@ function updateProgress() {
   });
 }
 
-// ─── Build Kanban card ────────────────────────────────────────────────────────
 function buildCard(task) {
   const assignee = task.assignedTo?.username || null;
   const initials = assignee ? assignee.slice(0, 2).toUpperCase() : null;
@@ -59,13 +55,12 @@ function buildCard(task) {
         ${initials ? `<div class="w-6 h-6 rounded-full bg-gradient-to-br from-blue-600 to-violet-600 flex items-center justify-center text-[10px] font-bold">${initials}</div>` : ""}
         ${task.dueDate ? dueDateChip(task.dueDate) : ""}
       </div>
-      <a href="/tasks/${task._id}" class="text-xs text-slate-600 group-hover:text-blue-400 transition opacity-0 group-hover:opacity-100">Edit →</a>
+      <a href="/tasks/${task._id}" class="text-xs text-slate-600 group-hover:text-blue-400 transition opacity-0 group-hover:opacity-100">Edit \u2192</a>
     </div>
   `;
   return div;
 }
 
-// ─── Build List Row ───────────────────────────────────────────────────────────
 function buildRow(task) {
   const tr = document.createElement("tr");
   tr.className = "border-b border-slate-800/60 hover:bg-slate-800/30 transition";
@@ -82,19 +77,17 @@ function buildRow(task) {
     <td class="px-4 py-3 text-center">${statusBadge(task.status)}</td>
     <td class="px-4 py-3 text-center">${dueDateChip(task.dueDate)}</td>
     <td class="px-4 py-3 text-center">
-      <a href="/tasks/${task._id}" class="text-xs text-blue-400 hover:text-blue-300 transition">Edit →</a>
+      <a href="/tasks/${task._id}" class="text-xs text-blue-400 hover:text-blue-300 transition">Edit \u2192</a>
     </td>
   `;
   return tr;
 }
 
-// ─── Load Tasks ───────────────────────────────────────────────────────────────
 async function loadTasks(projectId) {
   const res = await callApi("/tasks/project/" + projectId, "GET");
   if (!res) return;
   const taskList = res?.tasks || [];
 
-  // Clear all columns
   const boardTodo     = document.getElementById("boardTodo");
   const boardProgress = document.getElementById("boardProgress");
   const boardDone     = document.getElementById("boardDone");
@@ -107,19 +100,17 @@ async function loadTasks(projectId) {
 
   if (taskList.length === 0) {
     if (boardTodo)  boardTodo.innerHTML     = `<p class="text-slate-600 italic text-xs text-center py-6">No tasks yet</p>`;
-    if (listBody)   listBody.innerHTML      = `<tr><td colspan="5" class="text-center py-12 text-slate-500">No tasks yet. <a href="/tasks/create?projectId=${projectId}" class="text-blue-400 hover:underline">Create the first one →</a></td></tr>`;
+    if (listBody)   listBody.innerHTML      = `<tr><td colspan="5" class="text-center py-12 text-slate-500">No tasks yet. <a href="/tasks/create?projectId=${projectId}" class="text-blue-400 hover:underline">Create the first one \u2192</a></td></tr>`;
     updateProgress();
     return;
   }
 
   taskList.forEach(task => {
-    // Kanban
     const card = buildCard(task);
     if (task.status === "todo" && boardTodo) boardTodo.appendChild(card);
     else if (task.status === "in_progress" && boardProgress) boardProgress.appendChild(card);
     else if (task.status === "completed" && boardDone) boardDone.appendChild(card);
 
-    // List
     if (listBody) listBody.appendChild(buildRow(task));
   });
 
@@ -127,7 +118,6 @@ async function loadTasks(projectId) {
   initSortable();
 }
 
-// ─── Drag-and-Drop with SortableJS ───────────────────────────────────────────
 function initSortable() {
   const cols = {
     boardTodo:     "todo",
@@ -160,12 +150,10 @@ function initSortable() {
         card.setAttribute("data-status", newStatus);
         updateProgress();
 
-        // Persist to backend
         callApi("/tasks/" + taskId, "PUT", { status: newStatus }).then(res => {
           if (res?.success) {
             showToast(`Task moved to "${newStatus.replace("_", " ")}"`, "success");
           } else {
-            // Revert card on failure
             showToast("Could not update task status", "error");
             const origCol = document.getElementById(
               Object.keys(cols).find(k => cols[k] === oldStatus)
@@ -180,7 +168,6 @@ function initSortable() {
   });
 }
 
-// ─── Load Project Details ─────────────────────────────────────────────────────
 async function loadProjectDetails(projectId) {
   const res = await callApi("/projects/" + projectId, "GET");
   const project = res?.project;
@@ -195,7 +182,6 @@ async function loadProjectDetails(projectId) {
   if (link)   link.href = "/tasks/create?projectId=" + projectId;
 }
 
-// ─── View Toggle ──────────────────────────────────────────────────────────────
 const boardBtn  = document.getElementById("boardBtn");
 const listBtn   = document.getElementById("listBtn");
 const boardView = document.getElementById("boardView");
@@ -216,13 +202,12 @@ if (boardBtn && listBtn) {
   });
 }
 
-// ─── Create Task Form ─────────────────────────────────────────────────────────
 const taskForm = document.getElementById("taskform");
 if (taskForm) {
   taskForm.addEventListener("submit", async function(e) {
     e.preventDefault();
     const btn = document.getElementById("taskBtn");
-    if (btn) { btn.disabled = true; btn.textContent = "Creating…"; }
+    if (btn) { btn.disabled = true; btn.textContent = "Creating\u2026"; }
 
     const res = await callApi("/tasks/" + document.getElementById("projectId").value, "POST", {
       title:       document.getElementById("title").value,
@@ -241,7 +226,6 @@ if (taskForm) {
   });
 }
 
-// ─── Task Detail Form ─────────────────────────────────────────────────────────
 const taskDetailForm = document.getElementById("taskDetailForm");
 if (taskDetailForm) {
   taskDetailForm.addEventListener("submit", async function(e) {
@@ -249,7 +233,7 @@ if (taskDetailForm) {
     const taskId    = document.getElementById("taskId").value;
     const projectId = document.getElementById("projectId").value;
     const btn       = document.getElementById("updateBtn");
-    if (btn) { btn.disabled = true; btn.textContent = "Saving…"; }
+    if (btn) { btn.disabled = true; btn.textContent = "Saving\u2026"; }
 
     const res = await callApi("/tasks/" + taskId, "PUT", {
       title:       document.getElementById("title").value,
@@ -268,7 +252,6 @@ if (taskDetailForm) {
   });
 }
 
-// ─── Delete Task ──────────────────────────────────────────────────────────────
 const deleteBtn = document.getElementById("deleteBtn");
 if (deleteBtn) {
   deleteBtn.addEventListener("click", async () => {
@@ -276,7 +259,7 @@ if (deleteBtn) {
     const taskId    = document.getElementById("taskId").value;
     const projectId = document.getElementById("projectId").value;
     deleteBtn.disabled = true;
-    deleteBtn.textContent = "Deleting…";
+    deleteBtn.textContent = "Deleting\u2026";
     const res = await callApi("/tasks/" + taskId, "DELETE");
     if (res?.success) {
       showToast("Task deleted", "warn");
@@ -288,7 +271,6 @@ if (deleteBtn) {
   });
 }
 
-// ─── Load task detail (task-detail page) ─────────────────────────────────────
 async function loadTaskDetail(taskId) {
   const res  = await callApi("/tasks/" + taskId, "GET");
   const task = res?.task;
@@ -307,20 +289,13 @@ async function loadTaskDetail(taskId) {
   if (backLink && task.projectId) backLink.href = "/projects/" + task.projectId;
 }
 
-// ─── Decode JWT ────────────────────────────────────────────────────────────────
-function decodeToken() {
-  const token = localStorage.getItem("token");
-  if (!token) return null;
-  try { return JSON.parse(atob(token.split(".")[1])); } catch { return null; }
-}
-
 async function loadMembersForDropdown() {
-  const decoded = decodeToken();
-  if (!decoded?.workspaceId) return;
+  const user = window.__USER__;
+  if (!user?.workspaceId) return;
   const select = document.getElementById("assignedTo");
   if (!select) return;
 
-  const res = await callApi("/workspace-members/" + decoded.workspaceId + "/members", "GET");
+  const res = await callApi("/workspace-members/" + user.workspaceId + "/members", "GET");
   const members = res?.members || [];
 
   const unassignedOption = select.options[0];
@@ -336,7 +311,6 @@ async function loadMembersForDropdown() {
   });
 }
 
-// ─── Auto-init ────────────────────────────────────────────────────────────────
 (async function init() {
   const pageProjectId = window.PROJECT_ID;
   if (pageProjectId && !window.TASK_ID) {
