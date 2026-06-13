@@ -45,6 +45,8 @@ const taskSchema = new mongoose.Schema({
 },{ timestamps: true})
 
 taskSchema.index({ projectId: 1, tenantId: 1 })
+taskSchema.index({ tenantId: 1, createdAt: -1 })
+taskSchema.index({ tenantId: 1, assignedTo: 1, status: 1 })
 
 const Task = mongoose.model('Task', taskSchema)
 module.exports = Task

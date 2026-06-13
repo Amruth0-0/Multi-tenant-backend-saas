@@ -29,6 +29,9 @@ const workspaceModel = new mongoose.Schema({
         type: String,
         unique: true,
         sparse: true
+    },
+    inviteCodeExpiresAt: {
+        type: Date
     }
 },{timestamps: true})
 

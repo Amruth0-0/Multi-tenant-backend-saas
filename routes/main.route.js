@@ -10,6 +10,7 @@ const {
   renderAcceptInvite,
   renderDashboard,
   renderCreateWorkspace,
+  renderInviteMember,
   renderMembers,
   renderProjects,
   renderCreateProject,
@@ -27,9 +28,10 @@ router.get("/invite/:token", renderAcceptInvite);
 // ─── Protected Routes (require valid session cookie) ──────────────────────────
 router.use(requireAuthUI);
 
-router.get("/dashboard",          renderDashboard);
-router.get("/create-workspace",   renderCreateWorkspace);
-router.get("/workspace/members",  renderMembers);
+router.get("/dashboard",             renderDashboard);
+router.get("/create-workspace",      renderCreateWorkspace);
+router.get("/workspace/members",     renderMembers);
+router.get("/workspace/invite-member", renderInviteMember);
 
 router.get("/projects",           renderProjects);
 router.get("/projects/create",    renderCreateProject);

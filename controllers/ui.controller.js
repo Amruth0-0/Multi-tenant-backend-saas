@@ -14,6 +14,7 @@ exports.renderAcceptInvite = (req, res) =>
 
 exports.renderDashboard       = (req, res) => res.render("dashboard/dashboard");
 exports.renderCreateWorkspace = (req, res) => res.render("workspace/create-workspace");
+exports.renderInviteMember = (req, res) => res.render("workspace/invite-member");
 exports.renderMembers = (req, res) => res.render("workspace/members", { members: [] });
 
 exports.renderProjects      = (req, res) => res.render("projects/projects", { projects: [] });

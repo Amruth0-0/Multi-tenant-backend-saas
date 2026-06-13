@@ -20,6 +20,8 @@ const memberSchema = new mongoose.Schema({
 },{timestamps: true})
 
 memberSchema.index({ userId: 1, workspaceId: 1 }, { unique: true })
+memberSchema.index({ workspaceId: 1 })
+memberSchema.index({ userId: 1 })
 
 const WorkspaceMember = mongoose.model('WorkspaceMember',memberSchema)
 module.exports = WorkspaceMember

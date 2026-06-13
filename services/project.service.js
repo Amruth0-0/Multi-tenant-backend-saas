@@ -3,6 +3,9 @@ const taskModel = require("../models/task.model")
 const mongoose = require('mongoose')
 const createError = require("../utils/createError")
 
+const DEFAULT_PAGE_LIMIT = 50
+const MAX_PAGE_LIMIT = 100
+
 const createProject = async (name, description, tenantId, createdBy) => {
     if (!name) {
         throw createError("Name is required", 400);
@@ -24,12 +27,19 @@ const createProject = async (name, description, tenantId, createdBy) => {
     }
 }
 
-const getAllProjects = async (tenantId) => {
-    const projects = await projectModel.find({
-        tenantId
-    }).sort({ createdAt: -1 })
+const getAllProjects = async (tenantId, page = 1, limit = DEFAULT_PAGE_LIMIT) => {
+    const pageLimit = Math.min(Math.max(1, limit), MAX_PAGE_LIMIT)
+    const skip = (Math.max(1, page) - 1) * pageLimit
 
-    return projects
+    const [projects, total] = await Promise.all([
+        projectModel.find({ tenantId })
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(pageLimit),
+        projectModel.countDocuments({ tenantId })
+    ])
+
+    return { projects, total, page: Math.max(1, page), limit: pageLimit }
 }
 
 

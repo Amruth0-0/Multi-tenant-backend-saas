@@ -111,15 +111,25 @@ const getWorkspaceMembers = async (req, res) => {
       });
     }
 
-    const members = await workspaceMemberModel
-      .find({
-        workspaceId,
-      })
-      .populate("userId", "username email");
+    const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+    const limit = Math.min(Math.max(1, parseInt(req.query.limit, 10) || 50), 100);
+    const skip = (page - 1) * limit;
+
+    const [members, total] = await Promise.all([
+      workspaceMemberModel
+        .find({ workspaceId })
+        .populate("userId", "username email")
+        .skip(skip)
+        .limit(limit),
+      workspaceMemberModel.countDocuments({ workspaceId }),
+    ]);
 
     return res.status(200).json({
       success: true,
       count: members.length,
+      total,
+      page,
+      limit,
       members,
     });
   } catch (err) {
@@ -148,15 +158,22 @@ const removeMember = async (req, res) => {
       });
     }
 
-    const isMember = await workspaceMemberModel.findOne({
+    const membership = await workspaceMemberModel.findOne({
       userId: req.user.userId,
       workspaceId: workspaceId,
     });
 
-    if (!isMember) {
+    if (!membership) {
       return res.status(403).json({
         success: false,
         message: "Access denied",
+      });
+    }
+
+    if (membership.role !== "owner" && membership.role !== "admin") {
+      return res.status(403).json({
+        success: false,
+        message: "Access denied: insufficient permissions",
       });
     }
 
@@ -208,15 +225,22 @@ const updateMemberRole = async (req, res) => {
       });
     }
 
-    const isMember = await workspaceMemberModel.findOne({
+    const membership = await workspaceMemberModel.findOne({
       userId: req.user.userId,
       workspaceId: workspaceId,
     });
 
-    if (!isMember) {
+    if (!membership) {
       return res.status(403).json({
         success: false,
         message: "Access denied",
+      });
+    }
+
+    if (membership.role !== "owner" && membership.role !== "admin") {
+      return res.status(403).json({
+        success: false,
+        message: "Access denied: insufficient permissions",
       });
     }
 

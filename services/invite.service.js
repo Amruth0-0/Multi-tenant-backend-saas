@@ -4,7 +4,14 @@ const workspaceMemberModel = require("../models/workspaceMember.model");
 const createError = require("../utils/createError");
 
 const getInviteByToken = async (token) => {
-  const workspace = await Workspace.findOne({ inviteCode: token }).select("name _id");
+  const workspace = await Workspace.findOne({
+    inviteCode: token,
+    $or: [
+      { inviteCodeExpiresAt: { $exists: false } },
+      { inviteCodeExpiresAt: null },
+      { inviteCodeExpiresAt: { $gte: new Date() } },
+    ],
+  }).select("name _id");
 
   if (!workspace) {
     throw createError("Invalid or expired invite link", 404);
@@ -17,7 +24,14 @@ const getInviteByToken = async (token) => {
 };
 
 const acceptInvite = async ({ token, userId }) => {
-  const workspace = await Workspace.findOne({ inviteCode: token });
+  const workspace = await Workspace.findOne({
+    inviteCode: token,
+    $or: [
+      { inviteCodeExpiresAt: { $exists: false } },
+      { inviteCodeExpiresAt: null },
+      { inviteCodeExpiresAt: { $gte: new Date() } },
+    ],
+  });
 
   if (!workspace) {
     throw createError("Invalid or expired invite link", 404);

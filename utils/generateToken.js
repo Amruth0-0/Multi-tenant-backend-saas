@@ -1,7 +1,7 @@
 const crypto = require("crypto");
 
 const generateInviteToken = () => {
-  return crypto.randomBytes(32).toString("hex");
+  return crypto.randomBytes(16).toString("hex");
 };
 
 module.exports = generateInviteToken;

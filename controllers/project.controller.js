@@ -30,14 +30,22 @@ const createProject = async (req, res) => {
 
 const getAllProjects = async (req, res) => {
     try {
-        const projects = await projectService.getAllProjects(
-            req.user.tenantId
+        const page = parseInt(req.query.page, 10) || 1
+        const limit = parseInt(req.query.limit, 10) || 50
+
+        const result = await projectService.getAllProjects(
+            req.user.tenantId,
+            page,
+            limit
         )
 
         return res.status(200).json({
             success: true,
-            count: projects.length,
-            projects
+            count: result.projects.length,
+            total: result.total,
+            page: result.page,
+            limit: result.limit,
+            projects: result.projects
         })
 
     } catch (err) {

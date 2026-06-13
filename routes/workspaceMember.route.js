@@ -1,7 +1,7 @@
 const express = require("express");
 const { verifyToken } = require("../middleware/verifyToken");
 const { getWorkspaceMembers, removeMember, updateMemberRole } = require("../controllers/workspace.controller");
-const { authRole } = require("../middleware/authRole"); 
+const { authRoleForWorkspace } = require("../middleware/authRole"); 
 const { updateMemberRoleValidator } = require("../validators/member.validator");
 
 const router = express.Router();
@@ -12,9 +12,9 @@ router.use(verifyToken);
 router.get("/:workspaceId/members", getWorkspaceMembers); 
 
 // Remove member
-router.delete("/:workspaceId/members/:memberId", authRole("owner", "admin"), removeMember); 
+router.delete("/:workspaceId/members/:memberId", authRoleForWorkspace("owner", "admin"), removeMember); 
 
 // Update role
-router.patch("/:workspaceId/members/:memberId/role", authRole("owner", "admin"), updateMemberRoleValidator, updateMemberRole);
+router.patch("/:workspaceId/members/:memberId/role", authRoleForWorkspace("owner", "admin"), updateMemberRoleValidator, updateMemberRole);
 
 module.exports = router;

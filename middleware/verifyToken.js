@@ -36,7 +36,7 @@ exports.verifyToken = async (req, res, next) => {
       const membership = await WorkspaceMember.findOne({
         userId: decoded.userId,
         workspaceId: decoded.workspaceId,
-      });
+      }).session(req.mongooseSession || null);
 
       if (!membership) {
         return res.status(403).json({
@@ -61,4 +61,32 @@ exports.verifyToken = async (req, res, next) => {
       message: "Unauthorized: Invalid or expired token",
     });
   }
+};
+
+exports.optionalToken = (req, res, next) => {
+  const cookieToken = req.cookies?.token;
+  const authHeader = req.header("Authorization");
+
+  let token = cookieToken;
+  if (!token && authHeader && authHeader.startsWith("Bearer ")) {
+    token = authHeader.split(" ")[1];
+  }
+
+  if (!token) return next();
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    if (decoded.userId) {
+      req.user = {
+        userId: decoded.userId,
+        workspaceId: decoded.workspaceId,
+        tenantId: decoded.tenantId,
+        role: decoded.role,
+      };
+    }
+  } catch {
+    // Token invalid — continue without user
+  }
+
+  next();
 };

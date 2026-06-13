@@ -5,6 +5,9 @@ const createError = require("../utils/createError")
 const Workspace = require('../models/workspace.model')
 const WorkspaceMember = require('../models/workspaceMember.model')
 
+const DEFAULT_PAGE_LIMIT = 50
+const MAX_PAGE_LIMIT = 100
+
 const createTask = async (title, description, projectId, tenantId, createdBy, assignedTo, dueDate, status) => {
     if (!mongoose.Types.ObjectId.isValid(projectId)) {
         throw createError("Invalid project id", 400);
@@ -57,7 +60,7 @@ const createTask = async (title, description, projectId, tenantId, createdBy, as
     return task
 }
 
-const getTasksByProject = async (projectId, tenantId) => {
+const getTasksByProject = async (projectId, tenantId, page = 1, limit = DEFAULT_PAGE_LIMIT) => {
     if (!mongoose.Types.ObjectId.isValid(projectId)) {
         throw createError("Invalid project id", 400);
     }
@@ -72,13 +75,19 @@ const getTasksByProject = async (projectId, tenantId) => {
         throw createError("Project not found", 404);
     }
 
-    const tasks = await taskModel.find({
-        projectId,
-        tenantId
-    }).populate("assignedTo", "username email")
-        .sort({ createdAt: -1 })
+    const pageLimit = Math.min(Math.max(1, limit), MAX_PAGE_LIMIT)
+    const skip = (Math.max(1, page) - 1) * pageLimit
 
-    return tasks
+    const [tasks, total] = await Promise.all([
+        taskModel.find({ projectId, tenantId })
+            .populate("assignedTo", "username email")
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(pageLimit),
+        taskModel.countDocuments({ projectId, tenantId })
+    ])
+
+    return { tasks, total, page: Math.max(1, page), limit: pageLimit }
 
 }
 
@@ -173,12 +182,21 @@ const updateTask = async (taskId, tenantId, role, title, description, assignedTo
     return task
 }
 
-const getAllTasks = async (tenantId) => {
-    const tasks = await taskModel.find({ tenantId })
-        .populate("projectId", "name")
-        .populate("assignedTo", "username email")
-        .sort({ createdAt: -1 });
-    return tasks;
+const getAllTasks = async (tenantId, page = 1, limit = DEFAULT_PAGE_LIMIT) => {
+    const pageLimit = Math.min(Math.max(1, limit), MAX_PAGE_LIMIT)
+    const skip = (Math.max(1, page) - 1) * pageLimit
+
+    const [tasks, total] = await Promise.all([
+        taskModel.find({ tenantId })
+            .populate("projectId", "name")
+            .populate("assignedTo", "username email")
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(pageLimit),
+        taskModel.countDocuments({ tenantId })
+    ])
+
+    return { tasks, total, page: Math.max(1, page), limit: pageLimit }
 }
 
 const getMyTasks = async (userId, tenantId) => {

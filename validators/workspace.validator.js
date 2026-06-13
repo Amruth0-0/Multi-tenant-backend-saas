@@ -1,4 +1,5 @@
-const { body, validationResult } = require("express-validator");
+const { body } = require("express-validator");
+const { validateRequest } = require("../utils/validateRequest");
 
 const workspaceValidator = [
   body("name")    .trim()    .notEmpty()    .withMessage("Workspace name is required")
@@ -6,16 +7,5 @@ const workspaceValidator = [
 
   validateRequest,
 ];
-
-function validateRequest(req, res, next) {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(422).json({
-      success: false,
-      errors: errors.array(),
-    });
-  }
-  next();
-}
 
 module.exports = { workspaceValidator };

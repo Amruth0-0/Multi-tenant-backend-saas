@@ -38,14 +38,22 @@ const createTask = async (req, res) => {
 
 const getTasksByProject = async (req, res) => {
     try {
-        const tasks = await taskService.getTasksByProject(
+        const page = parseInt(req.query.page, 10) || 1
+        const limit = parseInt(req.query.limit, 10) || 50
+
+        const result = await taskService.getTasksByProject(
             req.params.projectId,
-            req.user.tenantId
+            req.user.tenantId,
+            page,
+            limit
         )
 
         return res.status(200).json({
             success: true,
-            tasks
+            tasks: result.tasks,
+            total: result.total,
+            page: result.page,
+            limit: result.limit,
         })
     } catch (err) {
         return res.status(err.status || 500).json({
@@ -130,10 +138,16 @@ const updateTask = async (req, res) => {
 
 const getAllTasks = async (req, res) => {
     try {
-        const tasks = await taskService.getAllTasks(req.user.tenantId);
+        const page = parseInt(req.query.page, 10) || 1
+        const limit = parseInt(req.query.limit, 10) || 50
+
+        const result = await taskService.getAllTasks(req.user.tenantId, page, limit);
         return res.status(200).json({
             success: true,
-            tasks
+            tasks: result.tasks,
+            total: result.total,
+            page: result.page,
+            limit: result.limit,
         });
     } catch (err) {
         return res.status(err.status || 500).json({

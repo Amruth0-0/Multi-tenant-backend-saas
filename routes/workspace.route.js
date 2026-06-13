@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 
 const { verifyToken } = require("../middleware/verifyToken");
-const { authRole } = require("../middleware/authRole");
+const { authRole, authRoleForWorkspace } = require("../middleware/authRole");
 const { workspaceCreate, getWorkspace, resetInviteLink } = require("../controllers/workspace.controller");
 const { getInviteDetails, acceptInvite, } = require("../controllers/invite.controller");
 const { workspaceValidator } = require("../validators/workspace.validator");
@@ -22,7 +22,7 @@ router.post("/", workspaceValidator, workspaceCreate);
 router.get("/:workspaceId", getWorkspace);
 
 // Reset invite link
-router.post("/:workspaceId/reset-invite", authRole("owner"), resetInviteLink);
+router.post("/:workspaceId/reset-invite", authRoleForWorkspace("owner"), resetInviteLink);
 
 // Accept invite
 router.post("/accept-invite", acceptInviteValidator, acceptInvite);
