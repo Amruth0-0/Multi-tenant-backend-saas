@@ -37,6 +37,9 @@ This isn't a tutorial project - it's the architecture I wish I had when starting
 * 🔗 **Smart Invite System** - Shareable workspace invite links with one-click copy and link reset functionality
 * 📊 **Interactive Kanban Board** - Drag-and-drop task status updates powered by **SortableJS**
 * 🌅 **"My Day" Dashboard** - Personalized workspace overview with progress tracking and prioritized task lists
+* 🛡️ **Security Hardened** - Helmet CSP headers, rate limiting, and centralized error handling
+* 📋 **Structured Logging** - Request-scoped JSON logger with request IDs and duration tracking
+* ❤️ **Health & Readiness Endpoints** - Monitoring endpoints for uptime and database connectivity
 * 🔄 **True tenant isolation** - Each workspace is a completely separate tenant context
 * 🏗️ **Clean MVC Architecture** - Dedicated controllers for UI and API, separated from route definitions
 * 🌐 **Full-stack integration** - Premium EJS frontend with modular JavaScript and a centralized API handler
@@ -51,6 +54,8 @@ This isn't a tutorial project - it's the architecture I wish I had when starting
 * **Frontend Logic:** Vanilla JS (ES6+), SortableJS
 * **Authentication:** JSON Web Tokens (JWT) + HTTP-only Cookies
 * **Validation:** express-validator
+* **Security:** Helmet, express-rate-limit, bcryptjs
+* **Logging:** Structured JSON logger
 * **Styling:** Tailwind CSS (via CDN)
 
 ---
@@ -62,6 +67,9 @@ This isn't a tutorial project - it's the architecture I wish I had when starting
 ### ✅ Core Capabilities
 
 * ✓ **Security Overhaul**: Fully transitioned to HTTP-only cookies for maximum auth security.
+* ✓ **Backend Hardening**: Centralized error handler with uncaught exception/rejection guards; Helmet CSP headers and rate limiting on auth & API routes.
+* ✓ **Structured Logging**: Request-scoped JSON logger with request IDs, IP tracking, and response duration.
+* ✓ **Health & Readiness**: Monitoring endpoints for uptime (`/health`) and DB connectivity (`/ready`).
 * ✓ **Kanban Workflow**: Real-time status persistence with interactive drag-and-drop.
 * ✓ **Workspace Invitations**: Replaced static forms with shareable, resettable invite links.
 * ✓ **Dashboard Intelligence**: Dynamic progress calculation and personalized greetings.
@@ -137,8 +145,13 @@ Add the following inside your `.env` file:
 MONGO_URI=mongodb+srv://<username>:<password>@cluster0.mongodb.net/tenantflow?appName=Cluster0
 JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
 PORT=3000
+NODE_ENV=development
+BCRYPT_SALT_ROUNDS=12
+INVITE_CODE_EXPIRY_DAYS=7
 ```
 > Make sure `MONGO_URI` is used as the key, as it is referenced in the database configuration instead of `MONGODB_URI`.
+
+> `NODE_ENV` controls error detail exposure (full stack traces in development only). `BCRYPT_SALT_ROUNDS` sets password hashing cost. `INVITE_CODE_EXPIRY_DAYS` controls how long workspace invite links remain valid.
 
 ---
 
@@ -146,6 +159,12 @@ PORT=3000
 
 ### Base URL
 `http://localhost:3000/api`
+
+### ❤️ Monitoring
+```http
+GET /health    # Server uptime check
+GET /ready     # Database connectivity check
+```
 
 ### 🔐 Authentication
 ```http
@@ -221,9 +240,10 @@ Check response type before parsing JSON. Ensure you're wrapping `await fetch` in
 
 ### Debug Tips
 
-* Check `localStorage` in browser dev tools for your JWT token.
+* Check the **Application > Cookies** tab in browser dev tools for the `token` cookie.
 * Use the **Network tab** to inspect full requests and responses.
 * Decode JWT at [jwt.io](https://jwt.io) to ensure correct user object payload including `id` and `workspaceId`.
+* Watch the server console for structured JSON log output (includes `reqId`, `method`, `url`, `statusCode`, `durationMs`).
 * Verify MongoDB connection state on application startup.
 
 ---
