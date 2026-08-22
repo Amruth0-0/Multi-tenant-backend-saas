@@ -2,9 +2,7 @@
 
 **A production-grade multi-tenant SaaS starter kit with workspace isolation, JWT authentication, and role-based access control.**
 
-[![Live Demo](https://img.shields.io/badge/Live%20Demo-Render-46E3B7?style=for-the-badge&logo=render&logoColor=white)](https://tenant-saas.duckdns.org)
-
-🔗 **Live Link:** [https://tenant-saas.duckdns.org](https://tenant-saas.duckdns.org)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-46E3B7?style=for-the-badge)](https://tenant-saas.duckdns.org)
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Node](https://img.shields.io/badge/node-%3E%3D14.0.0-brightgreen)
