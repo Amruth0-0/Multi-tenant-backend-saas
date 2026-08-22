@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: multi-tenant-backend-saas
+    runtime: docker
+    plan: free
+    region: oregon
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /ready
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+      - key: MONGO_URI
+        sync: false # Set manually in Render dashboard (e.g., MongoDB Atlas URI)
+      - key: JWT_SECRET
+        generateValue: true # Render will automatically generate a secure random string
+      - key: JWT_EXPIRES_IN
+        value: 7d

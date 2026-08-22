@@ -116,6 +116,47 @@ npm run dev
 
 ---
 
+## 🐳 Docker & Cloud Deployment (Render)
+
+### 1. Build & Test Container Locally
+
+Build the production Docker image:
+```bash
+docker build -t tenantflow-app .
+```
+
+Run the container:
+```bash
+docker run -d \
+  -p 3000:3000 \
+  --env-file .env \
+  --name tenantflow \
+  tenantflow-app
+```
+
+Verify endpoints:
+* **Application:** `http://localhost:3000`
+* **Health Check:** `http://localhost:3000/health`
+* **Readiness Check:** `http://localhost:3000/ready`
+
+---
+
+### 2. Deploying to Render via `render.yaml`
+
+This repository includes a native `render.yaml` infrastructure blueprint.
+
+1. **Push your repository** to GitHub.
+2. Log into [Render Dashboard](https://dashboard.render.com/).
+3. Click **New +** -> **Blueprint**.
+4. Connect your GitHub repository. Render will automatically detect `render.yaml`.
+5. Configure environment variables in the Render Dashboard:
+   * `MONGO_URI` or `MONGODB_URI`: Your MongoDB Atlas connection string.
+   * `JWT_SECRET`: Auto-generated or custom secret.
+6. Click **Apply**. Render will build the `Dockerfile`, monitor health checks on `/ready`, and deploy your live Web Service!
+
+
+---
+
 ## 📁 Project Structure
 
 ```
